@@ -49,47 +49,51 @@ class Data:
 	def describe(self):
 		text = "\t"
 		for i in range(len(self.name_list)):
-			text += self.name_list[i]
+			name = self.name_list[i].split()
+			name = name[0] if len(name) > 1 else self.name_list[i]
+			if len(name) <= 8:
+				name += "\t"
+			text += name
 			if i != len(self.name_list) - 1:
 				text += "\t"
 		text += "\nCount\t"
 		for i in range(len(self.count_list)):
 			text += str(self.count_list[i])
 			if i != len(self.count_list) - 1:
-				text += "\t"
+				text += "\t\t"
 		text += "\nMean\t"
 		for i in range(len(self.mean_list)):
-			text += str(self.mean_list[i])
+			text += f"{self.mean_list[i]:.6f}"
 			if i != len(self.mean_list) - 1:
 				text += "\t"
 		text += "\nStd\t"
 		for i in range(len(self.std_list)):
-			text += str(self.std_list[i])
+			text += f"{self.std_list[i]:.6f}"
 			if i != len(self.std_list) - 1:
 				text += "\t"
 		text += "\nMin\t"
 		for i in range(len(self.min_list)):
-			text += str(self.min_list[i])
+			text += f"{self.min_list[i]:.6f}"
 			if i != len(self.min_list) - 1:
 				text += "\t"
 		text += "\n25%\t"
 		for i in range(len(self.quarter_list)):
-			text += str(self.quarter_list[i])
+			text += f"{self.quarter_list[i]:.6f}"
 			if i != len(self.quarter_list) - 1:
 				text += "\t"
 		text += "\n50%\t"
 		for i in range(len(self.mid_list)):
-			text += str(self.mid_list[i])
+			text += f"{self.mid_list[i]:.6f}"
 			if i != len(self.mid_list) - 1:
 				text += "\t"
 		text += "\n75%\t"
 		for i in range(len(self.three_quarter_list)):
-			text += str(self.three_quarter_list[i])
+			text += f"{self.three_quarter_list[i]:.6f}"
 			if i != len(self.three_quarter_list) - 1:
 				text += "\t"
 		text += "\nMax\t"
 		for i in range(len(self.max_list)):
-			text += str(self.max_list[i])
+			text += f"{self.max_list[i]:.6f}"
 			if i != len(self.max_list) - 1:
 				text += "\t"
 		print(text)

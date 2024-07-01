@@ -15,19 +15,12 @@ def ft_std(values : list) -> float:
 	res = res ** 0.5
 	return res
 
-
 def ft_min(values : list) -> float:
 	res = values[0]
 	for val in values:
 		if val < res:
 			res = val
 	return res
-
-# def ft_percentile(values : list, percentile):
-# 	values.sort()
-# 	n = len(values)
-# 	idx = round(percentile * (n + 1) / 100) - 1
-# 	return values[idx]
 
 def ft_percentile(values : list, percentile):
 	cpy = deepcopy(values)
