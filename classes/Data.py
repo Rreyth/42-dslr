@@ -47,53 +47,35 @@ class Data:
 		return column
 
 	def describe(self):
-		text = "\t"
-		for i in range(len(self.name_list)):
-			name = self.name_list[i].split()
-			name = name[0] if len(name) > 1 else self.name_list[i]
-			if len(name) <= 8:
-				name += "\t"
-			text += name
-			if i != len(self.name_list) - 1:
-				text += "\t"
-		text += "\nCount\t"
-		for i in range(len(self.count_list)):
-			text += str(self.count_list[i])
-			if i != len(self.count_list) - 1:
-				text += "\t\t"
-		text += "\nMean\t"
-		for i in range(len(self.mean_list)):
-			text += f"{self.mean_list[i]:.6f}"
-			if i != len(self.mean_list) - 1:
-				text += "\t"
-		text += "\nStd\t"
-		for i in range(len(self.std_list)):
-			text += f"{self.std_list[i]:.6f}"
-			if i != len(self.std_list) - 1:
-				text += "\t"
-		text += "\nMin\t"
-		for i in range(len(self.min_list)):
-			text += f"{self.min_list[i]:.6f}"
-			if i != len(self.min_list) - 1:
-				text += "\t"
-		text += "\n25%\t"
-		for i in range(len(self.quarter_list)):
-			text += f"{self.quarter_list[i]:.6f}"
-			if i != len(self.quarter_list) - 1:
-				text += "\t"
-		text += "\n50%\t"
-		for i in range(len(self.mid_list)):
-			text += f"{self.mid_list[i]:.6f}"
-			if i != len(self.mid_list) - 1:
-				text += "\t"
-		text += "\n75%\t"
-		for i in range(len(self.three_quarter_list)):
-			text += f"{self.three_quarter_list[i]:.6f}"
-			if i != len(self.three_quarter_list) - 1:
-				text += "\t"
-		text += "\nMax\t"
-		for i in range(len(self.max_list)):
-			text += f"{self.max_list[i]:.6f}"
-			if i != len(self.max_list) - 1:
-				text += "\t"
+		text = "\t" + _format_names(self.name_list)
+		text += "\nCount\t" + _format_values(self.count_list)
+		text += "\nMean\t" + _format_values(self.mean_list)
+		text += "\nStd\t" + _format_values(self.std_list)
+		text += "\nMin\t" + _format_values(self.min_list)
+		text += "\n25%\t" + _format_values(self.quarter_list)
+		text += "\n50%\t" + _format_values(self.mid_list)
+		text += "\n75%\t" + _format_values(self.three_quarter_list)
+		text += "\nMax\t" + _format_values(self.max_list)
 		print(text)
+
+
+def _format_names(names : list):
+	res = ""
+	for i, name in enumerate(names):
+		first_word = name.split()[0]
+		res += first_word
+		res += "\t" if len(first_word) < 8 else ""
+		res += "\t" if i != len(names) - 1 else ""
+	return res
+
+def _format_values(values : list):
+	res = ""
+	for i, value in enumerate(values):
+		formated_value = f"{value:.6f}" if isinstance(value, float) else f"{value}"
+		dot_pos = formated_value.find(".")
+		if dot_pos != -1:
+			while formated_value[len(formated_value) - 1] == "0" and formated_value[len(formated_value) - 2] != '.':
+				formated_value = formated_value[:-1]
+		res += formated_value + ("\t" if len(formated_value) < 8 else "")
+		res += "\t" if i != len(values) - 1 else ""
+	return res
