@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
-import numpy as np
+# import numpy as np
+from classes.Matrix import Matrix
 import math as m
 
 # def likelihood(init_data, pred_data):
@@ -38,26 +39,31 @@ def gradient_descent(X, y, learningRate): # X -> matrix
 
 	return weights
 
-data = np.array([[5, 0], [7, 0], [10, 0], [12, 0], [14, 0], [13, 1], [15, 1], [16, 1], [18, 1], [20, 1]])
+# data = np.array([[5, 0], [7, 0], [10, 0], [12, 0], [14, 0], [13, 1], [15, 1], [16, 1], [18, 1], [20, 1]])
+data = Matrix([[0, 5], [0, 7], [0, 10], [0, 12], [0, 14], [1, 13], [1, 15], [1, 16], [1, 18], [1, 20]])
+print(data)
+
+tmp = data.subMatrix(-1, 0)
+print(tmp)
 
 # plt.scatter(x=np.take(data, [0], 1), y=np.take(data, [1], 1))
 # plt.show()
 
 # weights = gradient_descent(np.take(data, [0], 1), np.take(data, [1], 1), 0.01) -> fonctionne pour plusieurs poids (matrice)
 
-a = 0
-b = 1
+# a = 0
+# b = 1
 
-points = []
-for point in data:
-    odds = a * point[0] + b
-    log_odds = m.log(odds)
-    p = m.exp(log_odds) / (1 + m.exp(log_odds)) 
-    points.append([point[0], p])
+# points = []
+# for point in data:
+#     odds = a * point[0] + b
+#     log_odds = m.log(odds)
+#     p = m.exp(log_odds) / (1 + m.exp(log_odds)) 
+#     points.append([point[0], p])
 	
-new_data = np.array(points)
-print(new_data)
-print("log likelihood =", likelihood(data, new_data))
+# new_data = np.array(points)
+# print(new_data)
+# print("log likelihood =", likelihood(data, new_data))
 
-plt.plot(np.take(new_data, [0], 1), np.take(new_data, [1], 1))
-plt.show()
+# plt.plot(np.take(new_data, [0], 1), np.take(new_data, [1], 1))
+# plt.show()

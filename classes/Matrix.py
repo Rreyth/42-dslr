@@ -86,3 +86,16 @@ class Matrix:
 					res[i] += self.elems[i][j] * elem[j]
 
 			return res
+
+	def subMatrix(self, row, column):
+		mat = []
+		for i in range(self.size()[0]):
+			if i == row:
+				continue
+			line = []
+			for j in range(self.size()[1]):
+				if j == column:
+					continue
+				line.append(self[i, j])
+			mat.append(line)
+		return Matrix(mat)
