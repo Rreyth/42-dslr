@@ -77,7 +77,7 @@ class Matrix:
 			return Matrix(res)
 
 		else:
-			if self.size[1] != len(elem):
+			if self.size()[1] != len(elem):
 				raise ValueError("list must have a size equal to Matrix number of columns")
 			res = []
 			for i in range(self.size()[0]):
@@ -99,3 +99,12 @@ class Matrix:
 				line.append(self[i, j])
 			mat.append(line)
 		return Matrix(mat)
+
+	def colToLine(self, column):
+		if not 0 <= column <= self.size()[1] or not isinstance(column, int):
+			raise ValueError("number must be an int between 0 and matrix size included")
+		res = []
+		for i in range(self.size()[0]):
+			res.append(self[i, column])
+   
+		return res
