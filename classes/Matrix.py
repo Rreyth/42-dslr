@@ -108,3 +108,7 @@ class Matrix:
 			res.append(self[i, column])
    
 		return res
+
+	def addCol(self, new_column : list):
+		for i in range(self.size()[0]):
+			self.elems[i].append(new_column[i])
