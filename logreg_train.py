@@ -1,20 +1,41 @@
 import matplotlib.pyplot as plt
 from classes.Matrix import Matrix
+from classes.Data import Data
 from functions.myMath import list_exp, list_abs
+from functions.describe_fcts import to_dict
 import math as m
-from sys import stderr
+from sys import stderr, argv
 
+def make_matrix(data : Data, name : str) -> Matrix :
+	mat = []
+	for i, stud in enumerate(data.content):
+		mat.append([])
+		mat[i].append(1 if stud["Hogwarts House"] == name else 0)
+		for id, value in stud.items():
+			if id == "Index":
+				continue
+			try:
+				grade = float(value)
+				mat[i].append(grade)
+			except Exception:
+				if len(value) == 0:
+					mat[i].append(data.getCol(id)["mean"])
+ 
+	return Matrix(mat)
 
-def get_data():
+def get_data(dataset):
 	try:
-		data = open("datasets/datatest.csv") #replace with dataset
+		file = open(dataset)
 	except Exception as e:
 		print(f"Error: {e}", file=stderr)
 		exit(1)
-    
-    
-    #return 4 data Matrix (1 per house)
-	return Matrix([[1, 1], [1, 2]])
+	content = [line.split(",") for line in file.read().splitlines()]
+	names = content.pop(0)
+	for i in range(len(content)):
+		content[i] = to_dict(names, content[i])
+	data = Data(content)
+
+	return data
 
 # def likelihood(init_data, pred_data):
 # 	res = 1
@@ -82,11 +103,32 @@ def save_weights(weights):
   
 	file.write(save)
 
-data = Matrix([[0, 5, 0.5], [0, 7, 1.1], [0, 10, 1.9], [0, 12, 2], [0, 14, 3.9], [1, 13, 2.1], [1, 15, 3.3], [1, 16, 4.1], [1, 18, 4.5], [1, 20, 5.1]])
+if len(argv) != 2:
+	print("Error: wrong number of arguments", file=stderr)
+	print("Usage: python logreg_train.py dataset_train.csv")
+	exit(1)
+
+if not argv[1].endswith(".csv"): #only take dataset_train.csv
+	print("Error: argument must be dataset_train.csv", file=stderr)
+	print("Usage: python logreg_train.py dataset_train.csv")
+	exit(1)
+
+# data = Matrix([[0, 5, 0.5], [0, 7, 1.1], [0, 10, 1.9], [0, 12, 2], [0, 14, 3.9], [1, 13, 2.1], [1, 15, 3.3], [1, 16, 4.1], [1, 18, 4.5], [1, 20, 5.1]])
 # data = Matrix([[0, 0.6], [0, 1.1], [0, 1.9], [0, 3.9], [1, 2.1], [1, 3.3], [1, 4.1], [1, 4.5], [1, 5.1]])
 
-# data = get_data()
+data = get_data(argv[1])
+gryffindor_matrix = make_matrix(data, "Gryffindor")
+ravenclaw_matrix = make_matrix(data, "Ravenclaw")
+slytherin_matrix = make_matrix(data, "Slytherin")
+hufflepuff_matrix = make_matrix(data, "Hufflepuff")
 
+print(f"Gryffindor\n{gryffindor_matrix}")
+print(f"Ravenclaw\n{ravenclaw_matrix}")
+print(f"Slytherin\n{slytherin_matrix}")
+print(f"Hufflepuff\n{hufflepuff_matrix}")
+
+
+exit()
 # print(data)
 
 weights = gradient_descent(data, 0.01, 1000000)
