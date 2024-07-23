@@ -1,3 +1,5 @@
+from functions.myMath import list_abs
+
 class Matrix:
 	def __init__(self, elements : list[list[int | float]]):
 		size = elements[0].__len__()
@@ -112,3 +114,12 @@ class Matrix:
 	def addCol(self, new_column : list):
 		for i in range(self.size()[0]):
 			self.elems[i].append(new_column[i])
+
+	def normMatrix(self):
+		maxes = []
+		for i in range(self.size()[1]):
+			maxes.append(max(list_abs(self.colToLine(i))))
+
+		for i in range(self.size()[0]):
+			for j in range(self.size()[1]):
+				self.elems[i][j] /= maxes[j]

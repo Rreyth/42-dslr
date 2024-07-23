@@ -67,8 +67,9 @@ def sigmoid(x):
 	return res
 
 def gradient_descent(M : Matrix, learningRate, max_iter):
-	X = M.subMatrix(-1, 0)
 	y = M.colToLine(0)
+	X = M.subMatrix(-1, 0)
+	X.normMatrix()
 
 	bias = [1 for i in range(X.size()[0])]
 	X.addCol(bias)
@@ -84,6 +85,7 @@ def gradient_descent(M : Matrix, learningRate, max_iter):
 		if sum(list_abs(gradient)) < 1e-6: #convergence
 			break
 
+	#DENORMALIZE WEIGHTS
 	return weights
 
 def save_weights(weights):
@@ -122,18 +124,15 @@ ravenclaw_matrix = make_matrix(data, "Ravenclaw")
 slytherin_matrix = make_matrix(data, "Slytherin")
 hufflepuff_matrix = make_matrix(data, "Hufflepuff")
 
-print(f"Gryffindor\n{gryffindor_matrix}")
-print(f"Ravenclaw\n{ravenclaw_matrix}")
-print(f"Slytherin\n{slytherin_matrix}")
-print(f"Hufflepuff\n{hufflepuff_matrix}")
+# print(f"Gryffindor\n{gryffindor_matrix}")
+# print(f"Ravenclaw\n{ravenclaw_matrix}")
+# print(f"Slytherin\n{slytherin_matrix}")
+# print(f"Hufflepuff\n{hufflepuff_matrix}")
 
-
-exit()
 # print(data)
-
-weights = gradient_descent(data, 0.01, 1000000)
+weights = gradient_descent(gryffindor_matrix, 0.01, 1000000)
 print(weights)
-
+exit()
 save_weights(weights)
 
 a = weights[0]
