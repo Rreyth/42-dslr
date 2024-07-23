@@ -2,7 +2,19 @@ import matplotlib.pyplot as plt
 from classes.Matrix import Matrix
 from functions.myMath import list_exp, list_abs
 import math as m
+from sys import stderr
 
+
+def get_data():
+	try:
+		data = open("datasets/datatest.csv") #replace with dataset
+	except Exception as e:
+		print(f"Error: {e}", file=stderr)
+		exit(1)
+    
+    
+    #return 4 data Matrix (1 per house)
+	return Matrix([[1, 1], [1, 2]])
 
 # def likelihood(init_data, pred_data):
 # 	res = 1
@@ -58,7 +70,11 @@ def save_weights(weights):
 	try:
 		file = open("weights", 'x+t')	
 	except Exception as e:
-		file = open("weights", 'w+t')
+		try:
+			file = open("weights", 'w+t')
+		except Exception as e:
+			print(f"Error: {e}", file=stderr)
+			exit(1)
   
 	save = ""
 	for w in weights:
@@ -68,6 +84,9 @@ def save_weights(weights):
 
 data = Matrix([[0, 5, 0.5], [0, 7, 1.1], [0, 10, 1.9], [0, 12, 2], [0, 14, 3.9], [1, 13, 2.1], [1, 15, 3.3], [1, 16, 4.1], [1, 18, 4.5], [1, 20, 5.1]])
 # data = Matrix([[0, 0.6], [0, 1.1], [0, 1.9], [0, 3.9], [1, 2.1], [1, 3.3], [1, 4.1], [1, 4.5], [1, 5.1]])
+
+# data = get_data()
+
 # print(data)
 
 weights = gradient_descent(data, 0.01, 1000000)
