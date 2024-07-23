@@ -53,12 +53,27 @@ def gradient_descent(M : Matrix, learningRate, max_iter):
 
 	return weights
 
-data = Matrix([[0, 5, 0.6], [0, 7, 1.1], [0, 10, 1.9], [0, 12, 2], [0, 14, 3.9], [1, 13, 2.1], [1, 15, 3.3], [1, 16, 4.1], [1, 18, 4.5], [1, 20, 5.1]])
+def save_weights(weights):
+	file = False
+	try:
+		file = open("weights", 'x+t')	
+	except Exception as e:
+		file = open("weights", 'w+t')
+  
+	save = ""
+	for w in weights:
+		save += str(w) + "\n"
+  
+	file.write(save)
+
+data = Matrix([[0, 5, 0.5], [0, 7, 1.1], [0, 10, 1.9], [0, 12, 2], [0, 14, 3.9], [1, 13, 2.1], [1, 15, 3.3], [1, 16, 4.1], [1, 18, 4.5], [1, 20, 5.1]])
 # data = Matrix([[0, 0.6], [0, 1.1], [0, 1.9], [0, 3.9], [1, 2.1], [1, 3.3], [1, 4.1], [1, 4.5], [1, 5.1]])
 # print(data)
 
 weights = gradient_descent(data, 0.01, 1000000)
 print(weights)
+
+save_weights(weights)
 
 a = weights[0]
 b = weights.pop()
