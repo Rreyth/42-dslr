@@ -33,7 +33,7 @@ def sigmoid(x):
   
 	return res
 
-def gradient_descent(M : Matrix, learningRate):
+def gradient_descent(M : Matrix, learningRate, max_iter):
 	X = M.subMatrix(-1, 0)
 	y = M.colToLine(0)
 
@@ -41,8 +41,7 @@ def gradient_descent(M : Matrix, learningRate):
 	X.addCol(bias)
 
 	weights = [0.0 for i in range(X.size()[1])]
-	#for i in range(100000): #add max iter in params ?
-	while True:
+	for i in range(max_iter):
 		pred = sigmoid(X.dot(weights))
 		sub = [pred[j] - y[j] for j in range(len(y))]
 		gradient = X.transpose().dot(sub)
@@ -54,11 +53,11 @@ def gradient_descent(M : Matrix, learningRate):
 
 	return weights
 
-data = Matrix([[0, 5], [0, 7], [0, 10], [0, 12], [0, 14], [1, 13], [1, 15], [1, 16], [1, 18], [1, 20]])
+data = Matrix([[0, 5, 0.6], [0, 7, 1.1], [0, 10, 1.9], [0, 12, 2], [0, 14, 3.9], [1, 13, 2.1], [1, 15, 3.3], [1, 16, 4.1], [1, 18, 4.5], [1, 20, 5.1]])
 # data = Matrix([[0, 0.6], [0, 1.1], [0, 1.9], [0, 3.9], [1, 2.1], [1, 3.3], [1, 4.1], [1, 4.5], [1, 5.1]])
 # print(data)
 
-weights = gradient_descent(data, 0.01)
+weights = gradient_descent(data, 0.01, 1000000)
 print(weights)
 
 a = weights[0]
