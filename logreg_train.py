@@ -14,6 +14,8 @@ def make_matrix(data : Data, name : str) -> Matrix :
 				continue
 			try:
 				grade = float(value)
+				if grade != grade or grade == float('inf') or grade == float('-inf'):
+					continue
 				mat[i].append(grade)
 			except Exception:
 				if len(value) == 0:
@@ -112,7 +114,7 @@ houses.append({'name': 'Hufflepuff', 'matrix': make_matrix(data, "Hufflepuff")})
 
 save = ""
 for house in houses:
-	weights = gradient_descent(house["matrix"], 0.01, 100000)
+	weights = gradient_descent(house["matrix"], 0.01, 10000)
 	save += f"{house['name']}\n{format_weights(weights)}\n"
 
 save_weights(save)
