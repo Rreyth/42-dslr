@@ -10,6 +10,7 @@ class Matrix:
 				if not isinstance(elem, (int, float)):
 					raise TypeError("Matrix argument must be a list of lists of [int or float]")
 		self.elems = elements
+		self.maxes = self.makeMaxes()
 
 	def size(self):
 		size = [self.elems.__len__(), self.elems[0].__len__()]
@@ -115,11 +116,13 @@ class Matrix:
 		for i in range(self.size()[0]):
 			self.elems[i].append(new_column[i])
 
-	def normMatrix(self):
+	def makeMaxes(self):
 		maxes = []
 		for i in range(self.size()[1]):
 			maxes.append(max(list_abs(self.colToLine(i))))
+		return maxes
 
+	def normMatrix(self):
 		for i in range(self.size()[0]):
 			for j in range(self.size()[1]):
-				self.elems[i][j] /= maxes[j]
+				self.elems[i][j] /= self.maxes[j]

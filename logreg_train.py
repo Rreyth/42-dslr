@@ -66,6 +66,12 @@ def sigmoid(x):
   
 	return res
 
+def denormalise_weights(weights, maxes):
+	res = []
+	for i in range(len(weights) - 1):
+		res.append(weights[i] * (1 / maxes[i]))
+	return res
+
 def gradient_descent(M : Matrix, learningRate, max_iter):
 	y = M.colToLine(0)
 	X = M.subMatrix(-1, 0)
@@ -85,8 +91,9 @@ def gradient_descent(M : Matrix, learningRate, max_iter):
 		if sum(list_abs(gradient)) < 1e-6: #convergence
 			break
 
-	#DENORMALIZE WEIGHTS
-	return weights
+	denormalised_weights = denormalise_weights(weights, X.maxes)
+	denormalised_weights.append(weights.pop())
+	return denormalised_weights
 
 def save_weights(weights):
 	file = False
@@ -116,13 +123,13 @@ if not argv[1].endswith(".csv"): #only take dataset_train.csv
 	exit(1)
 
 # data = Matrix([[0, 5, 0.5], [0, 7, 1.1], [0, 10, 1.9], [0, 12, 2], [0, 14, 3.9], [1, 13, 2.1], [1, 15, 3.3], [1, 16, 4.1], [1, 18, 4.5], [1, 20, 5.1]])
-# data = Matrix([[0, 0.6], [0, 1.1], [0, 1.9], [0, 3.9], [1, 2.1], [1, 3.3], [1, 4.1], [1, 4.5], [1, 5.1]])
+data = Matrix([[0, 0.6], [0, 1.1], [0, 1.9], [0, 3.9], [1, 2.1], [1, 3.3], [1, 4.1], [1, 4.5], [1, 5.1]])
 
 data = get_data(argv[1])
 gryffindor_matrix = make_matrix(data, "Gryffindor")
-ravenclaw_matrix = make_matrix(data, "Ravenclaw")
-slytherin_matrix = make_matrix(data, "Slytherin")
-hufflepuff_matrix = make_matrix(data, "Hufflepuff")
+# ravenclaw_matrix = make_matrix(data, "Ravenclaw")
+# slytherin_matrix = make_matrix(data, "Slytherin")
+# hufflepuff_matrix = make_matrix(data, "Hufflepuff")
 
 # print(f"Gryffindor\n{gryffindor_matrix}")
 # print(f"Ravenclaw\n{ravenclaw_matrix}")
@@ -130,29 +137,28 @@ hufflepuff_matrix = make_matrix(data, "Hufflepuff")
 # print(f"Hufflepuff\n{hufflepuff_matrix}")
 
 # print(data)
-weights = gradient_descent(gryffindor_matrix, 0.01, 1000000)
+weights = gradient_descent(gryffindor_matrix, 0.01, 100000)
 print(weights)
-exit()
-save_weights(weights)
+# exit()
+# save_weights(weights)
 
-a = weights[0]
-b = weights.pop()
+# b = weights.pop()
 
-X = data.subMatrix(-1, 0)
-y = data.colToLine(0)
+# X = data.subMatrix(-1, 0)
+# y = data.colToLine(0)
 
-tmp = X.dot(weights)
-odds = [val + b for val in tmp]
-sig = sigmoid(odds)
-pred = Matrix([[sig[i], data[i, 1]] for i in range(len(sig))])
+# tmp = X.dot(weights)
+# odds = [val + b for val in tmp]
+# sig = sigmoid(odds)
+# pred = Matrix([[sig[i], data[i, 1]] for i in range(len(sig))])
 
-print("log likelihood =", likelihood(data, pred))
+# print("log likelihood =", likelihood(data, pred))
 
-plt.scatter(x=data.colToLine(1), y=data.colToLine(0), label="data")
-plt.plot(pred.colToLine(1), pred.colToLine(0), label="pred", color="red")
-# plt.scatter(pred.colToLine(1), pred.colToLine(0), label="pred", color="red")
+# plt.scatter(x=data.colToLine(1), y=data.colToLine(0), label="data")
+# plt.plot(pred.colToLine(1), pred.colToLine(0), label="pred", color="red")
+# # plt.scatter(pred.colToLine(1), pred.colToLine(0), label="pred", color="red")
 
-plt.xlabel("value")
-plt.ylabel("proba")
-plt.legend()
-plt.show()
+# plt.xlabel("value")
+# plt.ylabel("proba")
+# plt.legend()
+# plt.show()
