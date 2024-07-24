@@ -1,10 +1,8 @@
-import matplotlib.pyplot as plt
-from classes.Matrix import Matrix
-from classes.Data import Data
-from functions.myMath import list_exp, list_abs
-from functions.describe_fcts import to_dict
-import math as m
 from sys import stderr, argv
+from classes.Data import Data
+from classes.Matrix import Matrix
+from functions.describe_fcts import to_dict
+from functions.myMath import list_exp, list_abs
 
 def make_matrix(data : Data, name : str) -> Matrix :
 	mat = []
@@ -36,26 +34,6 @@ def get_data(dataset):
 	data = Data(content)
 
 	return data
-
-# def likelihood(init_data, pred_data):
-# 	res = 1
-# 	for i in range(init_data.size()[0]):
-# 		if init_data[i, 0] == 0:
-# 			res *= (1 - pred_data[i, 0])
-# 		else:
-# 			res *= pred_data[i, 0]
-   
-# 	return res
-
-def likelihood(init_data, pred_data):
-	res = 0
-	for i in range(init_data.size()[0]):
-		if init_data[i, 0] == 0:
-			res += m.log(1 - pred_data[i, 0])
-		else:
-			res += m.log(pred_data[i, 0])
-   
-	return res
 
 def sigmoid(x):
 	scaled_x = [elem * -1 for elem in x]
@@ -95,7 +73,7 @@ def gradient_descent(M : Matrix, learningRate, max_iter):
 	denormalised_weights.append(weights.pop())
 	return denormalised_weights
 
-def save_weights(weights):
+def save_weights(save):
 	file = False
 	try:
 		file = open("weights", 'x+t')	
@@ -105,60 +83,36 @@ def save_weights(weights):
 		except Exception as e:
 			print(f"Error: {e}", file=stderr)
 			exit(1)
-  
-	save = ""
-	for w in weights:
-		save += str(w) + "\n"
-  
+
 	file.write(save)
+
+def format_weights(weights):
+	res = ""
+	for i, w in enumerate(weights):
+		res += str(w)
+		res += "," if i != (len(weights) - 1) else ""
+	return res
 
 if len(argv) != 2:
 	print("Error: wrong number of arguments", file=stderr)
 	print("Usage: python logreg_train.py dataset_train.csv")
 	exit(1)
 
-if not argv[1].endswith(".csv"): #only take dataset_train.csv
+if not argv[1].endswith("dataset_train.csv"):
 	print("Error: argument must be dataset_train.csv", file=stderr)
 	print("Usage: python logreg_train.py dataset_train.csv")
 	exit(1)
 
-# data = Matrix([[0, 5, 0.5], [0, 7, 1.1], [0, 10, 1.9], [0, 12, 2], [0, 14, 3.9], [1, 13, 2.1], [1, 15, 3.3], [1, 16, 4.1], [1, 18, 4.5], [1, 20, 5.1]])
-data = Matrix([[0, 0.6], [0, 1.1], [0, 1.9], [0, 3.9], [1, 2.1], [1, 3.3], [1, 4.1], [1, 4.5], [1, 5.1]])
-
 data = get_data(argv[1])
-gryffindor_matrix = make_matrix(data, "Gryffindor")
-# ravenclaw_matrix = make_matrix(data, "Ravenclaw")
-# slytherin_matrix = make_matrix(data, "Slytherin")
-# hufflepuff_matrix = make_matrix(data, "Hufflepuff")
+houses = []
+houses.append({'name': 'Gryffindor', 'matrix': make_matrix(data, "Gryffindor")})
+houses.append({'name': 'Ravenclaw', 'matrix': make_matrix(data, "Ravenclaw")})
+houses.append({'name': 'Slytherin', 'matrix': make_matrix(data, "Slytherin")})
+houses.append({'name': 'Hufflepuff', 'matrix': make_matrix(data, "Hufflepuff")})
 
-# print(f"Gryffindor\n{gryffindor_matrix}")
-# print(f"Ravenclaw\n{ravenclaw_matrix}")
-# print(f"Slytherin\n{slytherin_matrix}")
-# print(f"Hufflepuff\n{hufflepuff_matrix}")
+save = ""
+for house in houses:
+	weights = gradient_descent(house["matrix"], 0.01, 100000)
+	save += f"{house['name']}\n{format_weights(weights)}\n"
 
-# print(data)
-weights = gradient_descent(gryffindor_matrix, 0.01, 100000)
-print(weights)
-# exit()
-# save_weights(weights)
-
-# b = weights.pop()
-
-# X = data.subMatrix(-1, 0)
-# y = data.colToLine(0)
-
-# tmp = X.dot(weights)
-# odds = [val + b for val in tmp]
-# sig = sigmoid(odds)
-# pred = Matrix([[sig[i], data[i, 1]] for i in range(len(sig))])
-
-# print("log likelihood =", likelihood(data, pred))
-
-# plt.scatter(x=data.colToLine(1), y=data.colToLine(0), label="data")
-# plt.plot(pred.colToLine(1), pred.colToLine(0), label="pred", color="red")
-# # plt.scatter(pred.colToLine(1), pred.colToLine(0), label="pred", color="red")
-
-# plt.xlabel("value")
-# plt.ylabel("proba")
-# plt.legend()
-# plt.show()
+save_weights(save)
