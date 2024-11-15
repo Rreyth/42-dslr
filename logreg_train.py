@@ -1,0 +1,120 @@
+from sys import stderr, argv
+from classes.Data import Data
+from classes.Matrix import Matrix
+from functions.describe_fcts import to_dict
+from functions.myMath import list_exp, list_abs
+
+def make_matrix(data : Data, name : str) -> Matrix :
+	mat = []
+	for i, stud in enumerate(data.content):
+		mat.append([])
+		mat[i].append(1 if stud["Hogwarts House"] == name else 0)
+		for id, value in stud.items():
+			if id == "Index":
+				continue
+			try:
+				grade = float(value)
+				if grade != grade or grade == float('inf') or grade == float('-inf'):
+					continue
+				mat[i].append(grade)
+			except Exception:
+				if len(value) == 0:
+					mat[i].append(data.getCol(id)["mean"])
+ 
+	return Matrix(mat)
+
+def get_data(dataset):
+	try:
+		file = open(dataset)
+	except Exception as e:
+		print(f"Error: {e}", file=stderr)
+		exit(1)
+	content = [line.split(",") for line in file.read().splitlines()]
+	names = content.pop(0)
+	for i in range(len(content)):
+		content[i] = to_dict(names, content[i])
+	data = Data(content)
+
+	return data
+
+def sigmoid(x):
+	scaled_x = [elem * -1 for elem in x]
+	expo = list_exp(scaled_x)
+	res = []
+	for i in range(len(expo)):
+		res.append(1 / (1 + expo[i]))
+  
+	return res
+
+def denormalise_weights(weights, maxes):
+	res = []
+	for i in range(len(weights) - 1):
+		res.append(weights[i] * (1 / maxes[i]))
+	return res
+
+def gradient_descent(M : Matrix, learningRate, max_iter):
+	y = M.colToLine(0)
+	X = M.subMatrix(-1, 0)
+	X.normMatrix()
+
+	bias = [1 for i in range(X.size()[0])]
+	X.addCol(bias)
+
+	weights = [0.0 for i in range(X.size()[1])]
+	for i in range(max_iter):
+		pred = sigmoid(X.dot(weights))
+		sub = [pred[j] - y[j] for j in range(len(y))]
+		gradient = X.transpose().dot(sub)
+		gradient = [value / len(y) for value in gradient]  
+		weights = [weights[j] - (learningRate * gradient[j]) for j in range(len(weights))]
+
+		if sum(list_abs(gradient)) < 1e-6: #convergence
+			break
+
+	denormalised_weights = denormalise_weights(weights, X.maxes)
+	denormalised_weights.append(weights.pop())
+	return denormalised_weights
+
+def save_weights(save):
+	file = False
+	try:
+		file = open("weights", 'x+t')	
+	except Exception as e:
+		try:
+			file = open("weights", 'w+t')
+		except Exception as e:
+			print(f"Error: {e}", file=stderr)
+			exit(1)
+
+	file.write(save)
+
+def format_weights(weights):
+	res = ""
+	for i, w in enumerate(weights):
+		res += str(w)
+		res += "," if i != (len(weights) - 1) else ""
+	return res
+
+if len(argv) != 2:
+	print("Error: wrong number of arguments", file=stderr)
+	print("Usage: python logreg_train.py dataset_train.csv")
+	exit(1)
+
+if not argv[1].endswith("dataset_train.csv"):
+	print("Error: argument must be dataset_train.csv", file=stderr)
+	print("Usage: python logreg_train.py dataset_train.csv")
+	exit(1)
+
+data = get_data(argv[1])
+houses = []
+houses.append({'name': 'Gryffindor', 'matrix': make_matrix(data, "Gryffindor")})
+houses.append({'name': 'Ravenclaw', 'matrix': make_matrix(data, "Ravenclaw")})
+houses.append({'name': 'Slytherin', 'matrix': make_matrix(data, "Slytherin")})
+houses.append({'name': 'Hufflepuff', 'matrix': make_matrix(data, "Hufflepuff")})
+
+save = ""
+for house in houses:
+	weights = gradient_descent(house["matrix"], 0.01, 10000)
+	save += f"{house['name']}\n{format_weights(weights)}\n"
+
+save_weights(save)
