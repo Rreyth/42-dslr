@@ -100,7 +100,7 @@ if len(argv) != 2:
 	print("Usage: python logreg_train.py dataset_train.csv")
 	exit(1)
 
-if not argv[1].endswith("dataset_train.csv"):
+if argv[1] != "dataset_train.csv" and not argv[1].endswith("/dataset_train.csv"):
 	print("Error: argument must be dataset_train.csv", file=stderr)
 	print("Usage: python logreg_train.py */dataset_train.csv")
 	exit(1)
