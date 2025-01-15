@@ -5,12 +5,12 @@ from sys import argv, stderr
 
 if len(argv) != 3:
 	print("Error: wrong number of arguments", file=stderr)
-	print("Usage: python logreg_predict.py dataset_test.csv weights")
+	print("Usage: python logreg_predict.py */dataset_test.csv weights")
 	exit(1)
- 
-if not argv[1].endswith("dataset_test.csv") or argv[2] != "weights":
+
+if (argv[1] != "dataset_test.csv" and not argv[1].endswith("/dataset_test.csv")) or argv[2] != "weights":
 	print("Error: arguments must be dataset_test.csv and weights", file=stderr)
-	print("Usage: python logreg_predict.py dataset_test.csv weights")
+	print("Usage: python logreg_predict.py */dataset_test.csv weights")
 	exit(1)
 
 # def get_data(dataset):
@@ -40,19 +40,19 @@ def make_houses(path):
 	houses.append({'name': content.pop(0)[0], 'weights': content.pop(0)})
 
 	return houses
- 
+
 # def sigmoid(x):
 # 	scaled_x = [elem * -1 for elem in x]
 # 	expo = list_exp(scaled_x)
 # 	res = []
 # 	for i in range(len(expo)):
 # 		res.append(1 / (1 + expo[i]))
-  
+
 # 	return res
 
 def save_houses(houses):
 	try:
-		file = open("houses.csv", 'x+t')	
+		file = open("houses.csv", 'x+t')
 	except Exception as e:
 		try:
 			file = open("houses.csv", 'w+t')
@@ -66,9 +66,8 @@ def save_houses(houses):
 	file.write(save)
 
 houses = make_houses(argv[2])
-print(houses)
+print(houses) # TODO: remove
 
-# following needs new vers from train branch
 #get data
 
 #data to matrix
