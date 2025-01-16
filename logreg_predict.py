@@ -1,31 +1,56 @@
 from sys import argv, stderr
-# from classes.Data import Data
-# from classes.Matrix import Matrix
-# from functions.myMath import list_exp
+from classes.Data import Data
+from functions.describe_fcts import to_dict
+from classes.Matrix import Matrix
+from functions.myMath import list_exp
 
 if len(argv) != 3:
 	print("Error: wrong number of arguments", file=stderr)
 	print("Usage: python logreg_predict.py */dataset_test.csv weights")
 	exit(1)
 
-if (argv[1] != "dataset_test.csv" and not argv[1].endswith("/dataset_test.csv")) or argv[2] != "weights":
+if (argv[1] != "dataset_test.csv" and not argv[1].endswith("/dataset_test.csv"))\
+		or (argv[2] != "weights" and not argv[2].endswith("/weights")):
 	print("Error: arguments must be dataset_test.csv and weights", file=stderr)
 	print("Usage: python logreg_predict.py */dataset_test.csv weights")
 	exit(1)
 
-# def get_data(dataset):
-# 	try:
-# 		file = open(dataset)
-# 	except Exception as e:
-# 		print(f"Error: {e}", file=stderr)
-# 		exit(1)
-# 	content = [line.split(",") for line in file.read().splitlines()]
-# 	names = content.pop(0)
-# 	for i in range(len(content)):
-# 		content[i] = to_dict(names, content[i])
-# 	data = Data(content)
 
-# 	return data
+def get_data(dataset):
+	try:
+		file = open(dataset)
+	except Exception as e:
+		print(f"Error: {e}", file=stderr)
+		exit(1)
+	content = [line.split(",") for line in file.read().splitlines()]
+	names = content.pop(0)
+	for i in range(len(content)):
+		content[i] = to_dict(names, content[i])
+	data = Data(content)
+
+	return data
+
+
+def make_matrix(data : Data) -> Matrix :
+	mat = []
+	for i, stud in enumerate(data.content):
+		mat.append([])
+		for id, value in stud.items():
+			if id == "Index" or id == "Arithmancy"\
+				or id == "Care of Magical Creatures"\
+				or id == "Hogwarts House":
+				continue
+			try:
+				grade = float(value)
+				if grade != grade or grade == float('inf') or grade == float('-inf'):
+					continue
+				mat[i].append(grade)
+			except Exception:
+				if len(value) == 0:
+					mat[i].append(data.getCol(id)["mean"])
+
+	return Matrix(mat)
+
 
 def make_houses(path):
 	try:
@@ -41,14 +66,32 @@ def make_houses(path):
 
 	return houses
 
-# def sigmoid(x):
-# 	scaled_x = [elem * -1 for elem in x]
-# 	expo = list_exp(scaled_x)
-# 	res = []
-# 	for i in range(len(expo)):
-# 		res.append(1 / (1 + expo[i]))
 
-# 	return res
+def choose_house(houses, nbStuds):
+	res = []
+
+	tmpHouse = 'none'
+
+	for i in range(nbStuds):
+		likelihood = -1000
+		for house in houses:
+			if house['likelihood'][i] >= likelihood:
+				likelihood = house['likelihood'][i]
+				tmpHouse = house['name']
+		res.append(tmpHouse)
+
+	return res
+
+
+def sigmoid(x):
+	scaled_x = [elem * -1 for elem in x]
+	expo = list_exp(scaled_x)
+	res = []
+	for i in range(len(expo)):
+		res.append(1 / (1 + expo[i]))
+
+	return res
+
 
 def save_houses(houses):
 	try:
@@ -65,25 +108,23 @@ def save_houses(houses):
 		save += f"{i},{house}\n"
 	file.write(save)
 
+
 houses = make_houses(argv[2])
-print(houses) # TODO: remove
 
-#get data
+data = get_data(argv[1])
 
-#data to matrix
-#matrix = make_matrix(data) -> skip house column
+matrix = make_matrix(data)
 
 predict = []
 for house in houses:
-	# weights = weights for the actual house -> house['weight]
-	b = house['weights'].pop()
+	weights = [float(w) for w in house['weights']]
 
-	# X = matrix.subMatrix(-1, 0) #maybe not since column 0 is supposedly house so empty here
+	b = weights.pop()
 
-	# odds = [val + b for val in X.dot(weights)]
-	# predict.append({'house' : house['name'], 'likelihood' : sigmoid(odds)})
+	odds = [val + b for val in matrix.dot(weights)]
+	predict.append({'name' : house['name'], 'likelihood' : sigmoid(odds)})
 
-#compare each pred and take the most likely house for each pers
-#final_prediction = choose_house(predict) -> list of houses
 
-# save_houses(final_prediction)
+final_prediction = choose_house(predict, matrix.size()[0])
+
+save_houses(final_prediction)

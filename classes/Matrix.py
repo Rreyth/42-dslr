@@ -43,7 +43,7 @@ class Matrix:
 			res.append([])
 			for j in range(self.size()[1]):
 				res[i].append(self.elems[i][j] * scalar)
-    
+
 		return Matrix(res)
 
 	def scale(self, scalar : int | float):
@@ -62,7 +62,7 @@ class Matrix:
 			res.append([])
 			for j in range(self.size()[0]):
 				res[i].append(self[j, i])
-    
+
 		return Matrix(res)
 
 	def dot(self, elem):
@@ -109,7 +109,7 @@ class Matrix:
 		res = []
 		for i in range(self.size()[0]):
 			res.append(self[i, column])
-   
+
 		return res
 
 	def addCol(self, new_column : list):
