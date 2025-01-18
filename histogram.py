@@ -31,7 +31,7 @@ def most_homogeneous_course_histogram(data: VisualizationData, most_homogeneous_
 	handles, labels = axs.get_legend_handles_labels()
 	fig.legend(handles, labels, loc='upper right', framealpha=1.0, bbox_to_anchor=(0.9, 0.88))
 
-	fig.savefig("Visualisation/histogram.png")
+	fig.savefig("Visualization/histogram.png")
 
 
 def all_courses_histogram(data: VisualizationData, courses, houses):
@@ -60,7 +60,7 @@ def all_courses_histogram(data: VisualizationData, courses, houses):
 	handles, labels = axs[0, 0].get_legend_handles_labels()
 	fig.legend(handles, labels, loc='lower right', fontsize="20", bbox_to_anchor=(0.96, 0.04))
 
-	fig.savefig("Visualisation/all_courses_histogram.png")
+	fig.savefig("Visualization/all_courses_histogram.png")
 
 
 def courses_std_dev_bar_plot(courses_std_dev: dict):
@@ -77,7 +77,7 @@ def courses_std_dev_bar_plot(courses_std_dev: dict):
 	fig.subplots_adjust(bottom=0.375)
 	axs.set(xlabel='Courses', ylabel='Std. Dev.')
 
-	fig.savefig("Visualisation/bar_plot.png")
+	fig.savefig("Visualization/bar_plot.png")
 
 
 if __name__ == "__main__":
