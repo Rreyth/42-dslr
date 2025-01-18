@@ -6,10 +6,10 @@ from functions.describe_fcts import ft_mean, ft_std
 from classes.VisualizationData import VisualizationData
 
 def dirCreate():
-	if path.isdir("Visualisation"):
+	if path.isdir("Visualization"):
 		return
 	try:
-		makedirs("Visualisation")
+		makedirs("Visualization")
 	except Exception as e:
 		print(f"Error: {e}", file=stderr)
 		exit(1)
