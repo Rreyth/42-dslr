@@ -15,6 +15,27 @@ class Data:
 		
 		self.columnCalc()
 
+	def __str__(self) -> str:
+		res = ""
+		for stud in self.content:
+			for name, value in stud.items():
+				res += name + ": " + value + "\n"
+			res += "-----------------------------------\n"
+		return res
+
+	def getCol(self, name):
+		idx = self.name_list.index(name)
+		res = {}
+		res["count"] = self.count_list[idx]
+		res["mean"] = self.mean_list[idx]
+		res["std"] = self.std_list[idx]
+		res["min"] = self.min_list[idx]
+		res["25"] = self.quarter_list[idx]
+		res["50"] = self.mid_list[idx]
+		res["75"] = self.three_quarter_list[idx]
+		res["max"] = self.max_list[idx]
+		return res
+
 	def columnCalc(self):
 		for key, value in self.content[0].items():
 			if key == 'Index':
