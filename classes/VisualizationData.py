@@ -11,7 +11,7 @@ class VisualizationData:
 			print(f"Error: {e}", file=stderr)
 			exit(1)
 		content = [line.split(",") for line in file.read().splitlines()]
-		names = content.pop(0)
+		names = content.pop(0) # changer le nom de variable
 
 		for i in range(1, len(content)):
 			house = content[i][1]
@@ -19,3 +19,5 @@ class VisualizationData:
 			for j in range(6, len(content[i])):
 				if (content[i][j] != ""):
 					self.houses[house][names[j]].append(float(content[i][j]))
+					self.houses["all_houses"][names[j]].append(float(content[i][j]))
+
