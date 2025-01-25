@@ -1,7 +1,19 @@
+from os import path, makedirs
+from sys import stderr
 import matplotlib.pyplot as plt
 from classes.VisualizationData import VisualizationData
 
+def dirCreate():
+	if path.isdir("Visualization"):
+		return
+	try:
+		makedirs("Visualization")
+	except Exception as e:
+		print(f"Error: {e}", file=stderr)
+		exit(1)
+
 if __name__ == "__main__":
+	dirCreate()
 	data = VisualizationData("datasets/dataset_train.csv")
 
 	courses = data.houses["Gryffindor"].keys()
@@ -38,4 +50,4 @@ if __name__ == "__main__":
 					axs[y, x].hist(data.houses[house][course_x], bins=100, alpha=0.5, label=house)
 					axs[y, x].label_outer(remove_inner_ticks=True)
 
-	fig.savefig("pair_plot.png")
+	fig.savefig("Visualization/pair_plot.png")
