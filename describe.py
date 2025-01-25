@@ -1,25 +1,16 @@
 from sys import argv, stderr
 from classes.Data import Data
-
+from functions.describe_fcts import to_dict
 
 if len(argv) != 2:
 	print("Error: wrong number of arguments", file=stderr)
-	print("Usage: describe.py <dataset>.csv")
+	print("Usage: python describe.py <dataset>.csv")
 	exit(1)
 
 if not argv[1].endswith(".csv"):
 	print("Error: argument must be a csv file", file=stderr)
-	print("Usage: describe.py <dataset>.csv")
+	print("Usage: python describe.py <dataset>.csv")
 	exit(1)
-
-
-def to_dict(names : list, line : list) -> dict:
-    res = {}
-    for i in range(len(line)):
-        res[names[i]] = line[i]
-        
-    return res
-
 
 try:
 	dataset = open(argv[1], 'r')
@@ -32,4 +23,4 @@ try:
 	data.describe()
 
 except Exception as e:
-	print(e, file=stderr)
+	print("Error:", e, file=stderr)

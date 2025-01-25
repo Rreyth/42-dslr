@@ -35,3 +35,10 @@ def ft_max(values : list) -> float:
 		if val > res:
 			res = val
 	return res
+
+def to_dict(names : list, line : list) -> dict:
+	res = {}
+	for i in range(len(line)):
+		res[names[i]] = line[i]
+		
+	return res
