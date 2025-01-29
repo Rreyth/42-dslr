@@ -4,6 +4,8 @@ from classes.Matrix import Matrix
 from functions.describe_fcts import to_dict
 from functions.myMath import list_exp, list_abs
 
+import numpy as np
+
 def make_matrix(data : Data, name : str) -> Matrix :
 	mat = []
 	for i, stud in enumerate(data.content):
@@ -22,6 +24,23 @@ def make_matrix(data : Data, name : str) -> Matrix :
 					mat[i].append(data.getCol(id)["mean"])
 
 	return Matrix(mat)
+
+def make_matrix2(data : Data, name : str) -> np.ndarray :
+	mat = np.ndarray((len(data.content), len(data.content[0]) - 6 - 2 + 1))
+	student_count = 0
+	for i, stud in enumerate(data.content):
+		mat[i, 0] = 1 if stud["Hogwarts House"] == name else 0
+		student_count = student_count + 1
+		k = 1
+		for j, (key, value) in enumerate(stud.items()):
+			if (j > 6 and j != 16):
+				if len(value) == 0:
+					mat[i, k] = data.getCol(key)["mean"] # faire la moyenne par maison
+				else:
+					mat[i, k] = float(value)
+				k = k + 1
+
+	return mat
 
 def get_data(dataset):
 	try:
@@ -52,15 +71,20 @@ def denormalise_weights(weights, maxes):
 		res.append(weights[i] * (1 / maxes[i]))
 	return res
 
-def gradient_descent(M : Matrix, learningRate, max_iter):
+def gradient_descent(M: Matrix, M2: np.ndarray, learningRate, max_iter):
 	y = M.colToLine(0)
+	y2 = M2[:, 0].astype(dtype=int)
 	X = M.subMatrix(-1, 0)
+	X2 = np.delete(M2, 0, axis=1)
 	X.normMatrix()
+	X2 = (X2 - np.min(X2)) / (np.max(X2) - np.min(X2))
 
 	bias = [1 for i in range(X.size()[0])]
 	X.addCol(bias)
 
 	weights = [0.0 for i in range(X.size()[1])]
+	weights = np.asarray(weights)
+	X = np.asarray(X)
 	for i in range(max_iter):
 		pred = sigmoid(X.dot(weights))
 		sub = [pred[j] - y[j] for j in range(len(y))]
@@ -107,14 +131,14 @@ if argv[1] != "dataset_train.csv" and not argv[1].endswith("/dataset_train.csv")
 
 data = get_data(argv[1])
 houses = []
-houses.append({'name': 'Gryffindor', 'matrix': make_matrix(data, "Gryffindor")})
-houses.append({'name': 'Ravenclaw', 'matrix': make_matrix(data, "Ravenclaw")})
-houses.append({'name': 'Slytherin', 'matrix': make_matrix(data, "Slytherin")})
-houses.append({'name': 'Hufflepuff', 'matrix': make_matrix(data, "Hufflepuff")})
+houses.append({'name': 'Gryffindor', 'matrix': make_matrix(data, "Gryffindor"), 'matrix2': make_matrix2(data, "Gryffindor")})
+houses.append({'name': 'Ravenclaw', 'matrix': make_matrix(data, "Ravenclaw"), 'matrix2': make_matrix2(data, "Ravenclaw")})
+houses.append({'name': 'Slytherin', 'matrix': make_matrix(data, "Slytherin"), 'matrix2': make_matrix2(data, "Slytherin")})
+houses.append({'name': 'Hufflepuff', 'matrix': make_matrix(data, "Hufflepuff"), 'matrix2': make_matrix2(data, "Hufflepuff")})
 
 save = ""
 for house in houses:
-	weights = gradient_descent(house["matrix"], 0.1, 1000)
+	weights = gradient_descent(house["matrix"], house["matrix2"], 0.1, 1000)
 	save += f"{house['name']}\n{format_weights(weights)}\n"
 
 save_weights(save)
