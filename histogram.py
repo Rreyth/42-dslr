@@ -2,8 +2,7 @@ import matplotlib.pyplot as plt
 from os import path, makedirs
 from sys import stderr
 from functions.describe_fcts import ft_mean, ft_std
-
-from classes.VisualizationData import VisualizationData
+from classes.Data import Data
 
 def dirCreate():
 	if path.isdir("Visualization"):
@@ -15,7 +14,7 @@ def dirCreate():
 		exit(1)
 
 
-def most_homogeneous_course_histogram(data: VisualizationData, most_homogeneous_course):
+def most_homogeneous_course_histogram(data: Data, most_homogeneous_course):
 	fig, axs = plt.subplots()
 
 	colors = {'Gryffindor' : '#ff0000',
@@ -34,7 +33,7 @@ def most_homogeneous_course_histogram(data: VisualizationData, most_homogeneous_
 	fig.savefig("Visualization/histogram.png")
 
 
-def all_courses_histogram(data: VisualizationData, courses, houses):
+def all_courses_histogram(data: Data, courses, houses):
 	fig, axs = plt.subplots(nrows=4, ncols=4, figsize=(15,15))
 
 	cols_count = 4
@@ -81,7 +80,7 @@ def courses_std_dev_bar_plot(courses_std_dev: dict):
 
 
 if __name__ == "__main__":
-	data = VisualizationData("datasets/dataset_train.csv")
+	data = Data("datasets/dataset_train.csv")
 
 	courses = data.houses["Gryffindor"].keys()
 	houses = data.houses.keys()
