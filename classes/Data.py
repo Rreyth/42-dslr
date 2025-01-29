@@ -1,8 +1,12 @@
+import numpy as np
+from sys import stderr
+from collections import defaultdict
 from functions.describe_fcts import *
 
 class Data:
-	def __init__(self, content : list[dict]):
-		self.content = content
+	def __init__(self, filepath: str):
+		self.houses = defaultdict(lambda: defaultdict(list))
+		self.allHouses = defaultdict(list)
 		self.name_list = []
 		self.count_list = []
 		self.mean_list = []
@@ -12,12 +16,28 @@ class Data:
 		self.mid_list = []
 		self.three_quarter_list = []
 		self.max_list = []
-		
+
+		try:
+			file = open(filepath)
+		except Exception as e:
+			print(f"Error: {e}", file=stderr)
+			exit(1)
+		content = [line.split(",") for line in file.read().splitlines()]
+		names = content.pop(0)
+		for i in range(len(content)):
+			house = content[i][1]
+			for j in range(6, len(content[i])):
+				if content[i][j] != '':
+					self.houses[house][names[j]].append(float(content[i][j]))
+					self.allHouses[names[j]].append(float(content[i][j]))
+				else:
+					self.allHouses[names[j]].append(np.nan)
+
 		self.columnCalc()
 
 	def __str__(self) -> str:
 		res = ""
-		for stud in self.content:
+		for stud in self.allHouses:
 			for name, value in stud.items():
 				res += name + ": " + value + "\n"
 			res += "-----------------------------------\n"
@@ -37,35 +57,16 @@ class Data:
 		return res
 
 	def columnCalc(self):
-		for key, value in self.content[0].items():
-			if key == 'Index':
-				continue
-			try:
-				float(value)
-				column = self.makeColumn(key)
-				self.name_list.append(key)
-				self.mean_list.append(ft_mean(column))
-				self.std_list.append(ft_std(column))
-				self.min_list.append(ft_min(column))
-				self.quarter_list.append(ft_percentile(column, 25))
-				self.mid_list.append(ft_percentile(column, 50))
-				self.three_quarter_list.append(ft_percentile(column, 75))
-				self.max_list.append(ft_max(column))
-			except Exception:
-				continue
-
-	def makeColumn(self, key):
-		column = []
-		count = 0
-		for entry in self.content:
-			try:
-				column.append(float(entry[key]))
-				count += 1
-			except Exception:
-				continue
-
-		self.count_list.append(count)
-		return column
+		for key, values in self.allHouses.items():
+			self.count_list.append(len([x for x in values if not np.isnan(x)]))
+			self.name_list.append(key)
+			self.mean_list.append(ft_mean(values))
+			self.std_list.append(ft_std(values))
+			self.min_list.append(ft_min(values))
+			self.quarter_list.append(ft_percentile(values, 25))
+			self.mid_list.append(ft_percentile(values, 50))
+			self.three_quarter_list.append(ft_percentile(values, 75))
+			self.max_list.append(ft_max(values))
 
 	def describe(self):
 		text = "\t" + _format_names(self.name_list)

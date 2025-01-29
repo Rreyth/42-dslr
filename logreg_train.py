@@ -36,21 +36,6 @@ def make_matrix(data : Data, name : str) -> Matrix :
 	return Matrix(mat)
 
 
-def get_data(dataset):
-	try:
-		file = open(dataset)
-	except Exception as e:
-		print(f"Error: {e}", file=stderr)
-		exit(1)
-	content = [line.split(",") for line in file.read().splitlines()]
-	names = content.pop(0)
-	for i in range(len(content)):
-		content[i] = to_dict(names, content[i])
-	data = Data(content)
-
-	return data
-
-
 def sigmoid(x):
 	scaled_x = [elem * -1 for elem in x]
 	expo = list_exp(scaled_x)
@@ -131,7 +116,8 @@ if argv[1] != "dataset_train.csv" and not argv[1].endswith("/dataset_train.csv")
 
 dirCreate()
 
-data = get_data(argv[1])
+# data = get_data(argv[1])
+data = Data(argv[1])
 houses = []
 houses.append({'name': 'Gryffindor', 'matrix': make_matrix(data, "Gryffindor")})
 houses.append({'name': 'Ravenclaw', 'matrix': make_matrix(data, "Ravenclaw")})
