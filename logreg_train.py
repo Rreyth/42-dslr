@@ -1,8 +1,20 @@
 from sys import stderr, argv
+from os import path, makedirs
 from classes.Data import Data
 from classes.Matrix import Matrix
 from functions.describe_fcts import to_dict
 from functions.myMath import list_exp, list_abs
+import matplotlib.pyplot as plt
+
+def dirCreate():
+	if path.isdir("Visualization"):
+		return
+	try:
+		makedirs("Visualization")
+	except Exception as e:
+		print(f"Error: {e}", file=stderr)
+		exit(1)
+
 
 def make_matrix(data : Data, name : str) -> Matrix :
 	mat = []
@@ -23,6 +35,7 @@ def make_matrix(data : Data, name : str) -> Matrix :
 
 	return Matrix(mat)
 
+
 def get_data(dataset):
 	try:
 		file = open(dataset)
@@ -37,6 +50,7 @@ def get_data(dataset):
 
 	return data
 
+
 def sigmoid(x):
 	scaled_x = [elem * -1 for elem in x]
 	expo = list_exp(scaled_x)
@@ -46,13 +60,20 @@ def sigmoid(x):
 
 	return res
 
-def denormalise_weights(weights, maxes):
+
+def denormalize_weights(weights, maxes):
 	res = []
 	for i in range(len(weights) - 1):
 		res.append(weights[i] * (1 / maxes[i]))
 	return res
 
+
+error_lists = []
+
+
 def gradient_descent(M : Matrix, learningRate, max_iter):
+	error_lists.append([])
+
 	y = M.colToLine(0)
 	X = M.subMatrix(-1, 0)
 	X.normMatrix()
@@ -68,12 +89,15 @@ def gradient_descent(M : Matrix, learningRate, max_iter):
 		gradient = [value / len(y) for value in gradient]
 		weights = [weights[j] - (learningRate * gradient[j]) for j in range(len(weights))]
 
-		if sum(list_abs(gradient)) < 1e-6: #convergence
+		error = sum(list_abs(gradient))
+		error_lists[-1].append(error)
+
+		if error < 1e-6: #convergence
 			break
 
-	denormalised_weights = denormalise_weights(weights, X.maxes)
-	denormalised_weights.append(weights.pop())
-	return denormalised_weights
+	denormalized_weights = denormalize_weights(weights, X.maxes)
+	denormalized_weights.append(weights.pop())
+	return denormalized_weights
 
 def save_weights(save):
 	file = False
@@ -105,6 +129,8 @@ if argv[1] != "dataset_train.csv" and not argv[1].endswith("/dataset_train.csv")
 	print("Usage: python logreg_train.py */dataset_train.csv")
 	exit(1)
 
+dirCreate()
+
 data = get_data(argv[1])
 houses = []
 houses.append({'name': 'Gryffindor', 'matrix': make_matrix(data, "Gryffindor")})
@@ -113,8 +139,18 @@ houses.append({'name': 'Slytherin', 'matrix': make_matrix(data, "Slytherin")})
 houses.append({'name': 'Hufflepuff', 'matrix': make_matrix(data, "Hufflepuff")})
 
 save = ""
-for house in houses:
+fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(15, 15))
+for i, house in enumerate(houses):
 	weights = gradient_descent(house["matrix"], 0.1, 1000)
 	save += f"{house['name']}\n{format_weights(weights)}\n"
 
+	# visualization of gradient descent
+	x = i % 2
+	y = i // 2
+	axs[x, y].set(ylabel="Error")
+	axs[x, y].set_title(house["name"], fontsize=20, pad=15)
+	axs[x, y].yaxis.label.set_size(20)
+	axs[x, y].plot(error_lists[i])
+
 save_weights(save)
+fig.savefig("Visualization/gradient_descent.png")
