@@ -20,7 +20,7 @@ def ft_std(values : list) -> float:
 	return res
 
 def ft_min(values : list) -> float:
-	res = values[0] if values[0] != np.nan else 9999999
+	res = values[0] if not np.isnan(values[0]) else 9999999
 	for val in values:
 		if np.isnan(val):
 			continue
@@ -36,7 +36,7 @@ def ft_percentile(values : list, percentile):
 	return cpy[idx]
 
 def ft_max(values : list) -> float:
-	res = values[0] if values[0] != np.nan else -9999999
+	res = values[0] if not np.isnan(values[0]) else -9999999
 	for val in values:
 		if np.isnan(val):
 			continue
