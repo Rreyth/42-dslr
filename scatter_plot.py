@@ -1,7 +1,7 @@
 from os import path, makedirs
 from sys import stderr
 import matplotlib.pyplot as plt
-from classes.VisualizationData import VisualizationData
+from classes.Data import Data
 
 def dirCreate():
 	if path.isdir("Visualization"):
@@ -15,7 +15,7 @@ def dirCreate():
 
 if __name__ == "__main__":
 	dirCreate()
-	data = VisualizationData("datasets/dataset_train.csv")
+	data = Data("datasets/dataset_train.csv")
 
 	fig, axs = plt.subplots()
 
