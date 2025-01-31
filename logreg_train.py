@@ -39,10 +39,7 @@ def sigmoid(x):
 	return 1 / (1 + np.exp(-x))
 
 
-error_lists = []
-
-def gradient_descent(M: np.ndarray, learningRate, max_iter):
-	error_lists.append([])
+def init_GD(M: np.ndarray):
 	y = M[:, 0].astype(dtype=int)
 	X = np.delete(M, 0, axis=1)
 	maxX = np.max(np.absolute(X), axis=0)
@@ -51,14 +48,37 @@ def gradient_descent(M: np.ndarray, learningRate, max_iter):
 	bias = np.ones(X.shape[0])
 	X = np.column_stack((X, bias))
 
-	weights = np.zeros(X.shape[1])
-	for i in range(max_iter):
-		dot_product = np.dot(X, weights)
-		pred = sigmoid(dot_product)
-		sub = pred - y
-		gradient = np.dot(X.T, sub)
+	return X, maxX, y, bias
+
+
+def denormalize_weights(weights, maxX):
+	last = weights[-1]
+	weights = weights[:-1]
+	denormalized_weights = weights * (1.0 / maxX)
+	return np.append(denormalized_weights, last)
+
+
+def compute_gradient(X, weights, y, learningRate, stochastic : bool):
+	dot_product = np.dot(X, weights)
+	pred = sigmoid(dot_product)
+	sub = pred - y
+	gradient = np.dot(X.T, sub)
+	if not stochastic:
 		gradient = gradient / len(y)
-		gradient *= learningRate
+	gradient *= learningRate
+
+	return gradient
+
+
+error_lists = []
+
+def gradient_descent(M: np.ndarray, learningRate, max_iter):
+	error_lists.append([])
+	X, maxX, y, bias = init_GD(M)
+	weights = np.zeros(X.shape[1])
+
+	for i in range(max_iter):
+		gradient = compute_gradient(X, weights, y, learningRate, False)
 		weights -= gradient
 
 		error = sum(list_abs(gradient))
@@ -67,10 +87,57 @@ def gradient_descent(M: np.ndarray, learningRate, max_iter):
 		if error < 1e-6: #convergence
 			break
 
-	last = weights[-1]
-	weights = weights[:-1]
-	denormalized_weights = weights * (1.0 / maxX)
-	return np.append(denormalized_weights, last)
+	return denormalize_weights(weights, maxX)
+
+
+def stochastic_gradient_descent(M: np.ndarray, learningRate, max_iter):
+	error_lists.append([])
+	X, maxX, y, bias = init_GD(M)
+
+	weights = np.zeros(X.shape[1])
+	for i in range(max_iter):
+		rand_index = np.random.randint(X.shape[0])
+		rand_X = X[rand_index, :]
+		rand_y = y[rand_index]
+
+		gradient = compute_gradient(rand_X, weights, rand_y, learningRate, True)
+		weights -= gradient
+
+		error = sum(list_abs(gradient))
+		error_lists[-1].append(error)
+
+		if error < 1e-6: #convergence
+			break
+
+	return denormalize_weights(weights, maxX)
+
+
+def mini_batch_gradient_descent(M: np.ndarray, learningRate, max_iter, batch_size):
+
+	if batch_size < 1:
+		batch_size = 1
+	elif batch_size > M.shape[0]:
+		batch_size = M.shape[0]
+
+	error_lists.append([])
+	X, maxX, y, bias = init_GD(M)
+
+	weights = np.zeros(X.shape[1])
+	for i in range(max_iter):
+		rand_indexes = np.random.randint(X.shape[0], size=batch_size)
+		rand_X = X[rand_indexes, :]
+		rand_y = y[rand_indexes]
+
+		gradient = compute_gradient(rand_X, weights, rand_y, learningRate, False)
+		weights -= gradient
+
+		error = sum(list_abs(gradient))
+		error_lists[-1].append(error)
+
+		if error < 1e-6: #convergence
+			break
+
+	return denormalize_weights(weights, maxX)
 
 
 def save_weights(save):
@@ -115,7 +182,9 @@ houses = [{'name': 'Gryffindor', 'matrix': make_matrix(data, "Gryffindor")},
 save = ""
 fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(15, 15))
 for i, house in enumerate(houses):
-	weights = gradient_descent(house["matrix"], 0.1, 1000)
+	weights = gradient_descent(house["matrix"], 0.01, 1000)
+	# weights = stochastic_gradient_descent(house["matrix"], 0.01, 1000)
+	# weights = mini_batch_gradient_descent(house["matrix"], 0.01, 1000, 16)
 	save += f"{house['name']}\n{format_weights(weights)}\n"
 	print(f"{house['name']}: 100%")
 
