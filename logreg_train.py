@@ -1,10 +1,21 @@
 from sys import stderr, argv
+from os import path, makedirs
 from classes.Data import Data
 from functions.describe_fcts import to_dict
 from functions.myMath import list_abs
-
+import matplotlib.pyplot as plt
 import numpy as np
 from itertools import islice
+
+def dirCreate():
+	if path.isdir("Visualization"):
+		return
+	try:
+		makedirs("Visualization")
+	except Exception as e:
+		print(f"Error: {e}", file=stderr)
+		exit(1)
+
 
 NUMERICAL_VALUES_START = 6
 NB_USELESS_COLUMNS = 2
@@ -24,6 +35,7 @@ def make_matrix(data : Data, name : str) -> np.ndarray :
 
 	return mat
 
+
 def get_data(dataset):
 	try:
 		file = open(dataset)
@@ -38,10 +50,15 @@ def get_data(dataset):
 
 	return data
 
+
 def sigmoid(x):
 	return 1 / (1 + np.exp(-x))
 
+
+error_lists = []
+
 def gradient_descent(M: np.ndarray, learningRate, max_iter):
+  error_lists.append([])
 	y = M[:, 0].astype(dtype=int)
 	X = np.delete(M, 0, axis=1)
 	minX = X.min(axis=0)
@@ -62,13 +79,17 @@ def gradient_descent(M: np.ndarray, learningRate, max_iter):
 		gradient *= learningRate
 		weights -= gradient
 
-		if sum(list_abs(gradient)) < 1e-6: #convergence
+		error = sum(list_abs(gradient))
+		error_lists[-1].append(error)
+
+		if error < 1e-6: #convergence
 			break
 
 	last = weights[-1]
 	weights = weights[:-1]
 	denormalised_weights = weights * (1.0 / maxX)
 	return np.append(denormalised_weights, last)
+
 
 def save_weights(save):
 	file = False
@@ -100,6 +121,8 @@ if argv[1] != "dataset_train.csv" and not argv[1].endswith("/dataset_train.csv")
 	print("Usage: python logreg_train.py */dataset_train.csv")
 	exit(1)
 
+dirCreate()
+
 data = get_data(argv[1])
 houses = []
 houses.append({'name': 'Gryffindor', 'matrix': make_matrix(data, "Gryffindor")})
@@ -108,9 +131,19 @@ houses.append({'name': 'Slytherin', 'matrix': make_matrix(data, "Slytherin")})
 houses.append({'name': 'Hufflepuff', 'matrix': make_matrix(data, "Hufflepuff")})
 
 save = ""
-for house in houses:
+fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(15, 15))
+for i, house in enumerate(houses):
 	weights = gradient_descent(house["matrix"], 0.1, 1000)
 	save += f"{house['name']}\n{format_weights(weights)}\n"
 	print(f"{house['name']}: 100%")
 
+	# visualization of gradient descent
+	x = i % 2
+	y = i // 2
+	axs[x, y].set(ylabel="Error")
+	axs[x, y].set_title(house["name"], fontsize=20, pad=15)
+	axs[x, y].yaxis.label.set_size(20)
+	axs[x, y].plot(error_lists[i])
+
 save_weights(save)
+fig.savefig("Visualization/gradient_descent.png")
