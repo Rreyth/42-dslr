@@ -1,8 +1,9 @@
 from sys import argv, stderr
 from classes.Data import Data
 from functions.describe_fcts import to_dict
-from classes.Matrix import Matrix
-from functions.myMath import list_exp
+
+import numpy as np
+from itertools import islice
 
 if len(argv) != 3:
 	print("Error: wrong number of arguments", file=stderr)
@@ -31,25 +32,22 @@ def get_data(dataset):
 	return data
 
 
-def make_matrix(data : Data) -> Matrix :
-	mat = []
-	for i, stud in enumerate(data.content):
-		mat.append([])
-		for id, value in stud.items():
-			if id == "Index" or id == "Arithmancy"\
-				or id == "Care of Magical Creatures"\
-				or id == "Hogwarts House":
-				continue
-			try:
-				grade = float(value)
-				if grade != grade or grade == float('inf') or grade == float('-inf'):
-					continue
-				mat[i].append(grade)
-			except Exception:
-				if len(value) == 0:
-					mat[i].append(data.getCol(id)["mean"])
+NUMERICAL_VALUES_START = 6
+NB_USELESS_COLUMNS = 2
 
-	return Matrix(mat)
+def make_matrix(data : Data) -> np.ndarray :
+	mat = np.ndarray((len(data.content), len(data.content[0]) - NUMERICAL_VALUES_START - NB_USELESS_COLUMNS), dtype=float)
+	for i, stud in enumerate(data.content):
+		k = 0
+		for key, value in islice(stud.items(), NUMERICAL_VALUES_START, None):
+			if (key != "Arithmancy" and key != "Care of Magical Creatures"):
+				if len(value) == 0:
+					mat[i, k] = data.getCol(key)["mean"]
+				else:
+					mat[i, k] = float(value)
+				k = k + 1
+
+	return mat
 
 
 def make_houses(path):
@@ -84,13 +82,7 @@ def choose_house(houses, nbStuds):
 
 
 def sigmoid(x):
-	scaled_x = [elem * -1 for elem in x]
-	expo = list_exp(scaled_x)
-	res = []
-	for i in range(len(expo)):
-		res.append(1 / (1 + expo[i]))
-
-	return res
+	return 1 / (1 + np.exp(-x))
 
 
 def save_houses(houses):
@@ -121,10 +113,10 @@ for house in houses:
 
 	b = weights.pop()
 
-	odds = [val + b for val in matrix.dot(weights)]
+	odds = np.dot(matrix, weights) + b
 	predict.append({'name' : house['name'], 'likelihood' : sigmoid(odds)})
 
 
-final_prediction = choose_house(predict, matrix.size()[0])
+final_prediction = choose_house(predict, matrix.shape[0])
 
 save_houses(final_prediction)
