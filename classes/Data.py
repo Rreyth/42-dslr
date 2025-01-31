@@ -7,6 +7,7 @@ class Data:
 	def __init__(self, filepath: str):
 		self.houses = defaultdict(lambda: defaultdict(list))
 		self.allHouses = defaultdict(list)
+		self.studs = []
 		self.name_list = []
 		self.count_list = []
 		self.mean_list = []
@@ -25,6 +26,7 @@ class Data:
 		content = [line.split(",") for line in file.read().splitlines()]
 		names = content.pop(0)
 		for i in range(len(content)):
+			self.studs.append(to_dict(names, content[i]))
 			house = content[i][1]
 			for j in range(6, len(content[i])):
 				if content[i][j] != '':
