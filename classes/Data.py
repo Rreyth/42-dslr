@@ -1,4 +1,3 @@
-import numpy as np
 from sys import stderr
 from collections import defaultdict
 from functions.describe_fcts import *

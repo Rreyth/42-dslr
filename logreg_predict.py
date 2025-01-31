@@ -1,6 +1,5 @@
 from sys import argv, stderr
 from classes.Data import Data
-from functions.describe_fcts import to_dict
 
 import numpy as np
 from itertools import islice
@@ -17,30 +16,15 @@ if (argv[1] != "dataset_test.csv" and not argv[1].endswith("/dataset_test.csv"))
 	exit(1)
 
 
-def get_data(dataset):
-	try:
-		file = open(dataset)
-	except Exception as e:
-		print(f"Error: {e}", file=stderr)
-		exit(1)
-	content = [line.split(",") for line in file.read().splitlines()]
-	names = content.pop(0)
-	for i in range(len(content)):
-		content[i] = to_dict(names, content[i])
-	data = Data(content)
-
-	return data
-
-
 NUMERICAL_VALUES_START = 6
 NB_USELESS_COLUMNS = 2
 
 def make_matrix(data : Data) -> np.ndarray :
-	mat = np.ndarray((len(data.content), len(data.content[0]) - NUMERICAL_VALUES_START - NB_USELESS_COLUMNS), dtype=float)
-	for i, stud in enumerate(data.content):
+	mat = np.ndarray((len(data.studs), len(data.studs[0]) - NUMERICAL_VALUES_START - NB_USELESS_COLUMNS), dtype=float)
+	for i, stud in enumerate(data.studs):
 		k = 0
 		for key, value in islice(stud.items(), NUMERICAL_VALUES_START, None):
-			if (key != "Arithmancy" and key != "Care of Magical Creatures"):
+			if key != "Arithmancy" and key != "Care of Magical Creatures":
 				if len(value) == 0:
 					mat[i, k] = data.getCol(key)["mean"]
 				else:
@@ -57,10 +41,10 @@ def make_houses(path):
 		print(f"Error: {e}", file=stderr)
 		exit(1)
 	content = [line.split(",") for line in file.read().splitlines()]
-	houses = [{'name': content.pop(0)[0], 'weights': content.pop(0)}]
-	houses.append({'name': content.pop(0)[0], 'weights': content.pop(0)})
-	houses.append({'name': content.pop(0)[0], 'weights': content.pop(0)})
-	houses.append({'name': content.pop(0)[0], 'weights': content.pop(0)})
+	houses = [{'name': content.pop(0)[0], 'weights': content.pop(0)},
+	          {'name': content.pop(0)[0], 'weights': content.pop(0)},
+	          {'name': content.pop(0)[0], 'weights': content.pop(0)},
+	          {'name': content.pop(0)[0], 'weights': content.pop(0)}]
 
 	return houses
 
@@ -102,9 +86,7 @@ def save_houses(houses):
 
 
 houses = make_houses(argv[2])
-
-data = get_data(argv[1])
-
+data = Data(argv[1])
 matrix = make_matrix(data)
 
 predict = []

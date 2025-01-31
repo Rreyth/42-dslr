@@ -1,7 +1,6 @@
 from sys import stderr, argv
 from os import path, makedirs
 from classes.Data import Data
-from functions.describe_fcts import to_dict
 from functions.myMath import list_abs
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,12 +20,12 @@ NUMERICAL_VALUES_START = 6
 NB_USELESS_COLUMNS = 2
 
 def make_matrix(data : Data, name : str) -> np.ndarray :
-	mat = np.ndarray((len(data.content), len(data.content[0]) - NUMERICAL_VALUES_START - NB_USELESS_COLUMNS + 1), dtype=float)
-	for i, stud in enumerate(data.content):
+	mat = np.ndarray((len(data.studs), len(data.studs[0]) - NUMERICAL_VALUES_START - NB_USELESS_COLUMNS + 1), dtype=float)
+	for i, stud in enumerate(data.studs):
 		mat[i, 0] = 1 if stud["Hogwarts House"] == name else 0
 		k = 1
 		for key, value in islice(stud.items(), NUMERICAL_VALUES_START, None):
-			if (key != "Arithmancy" and key != "Care of Magical Creatures"):
+			if key != "Arithmancy" and key != "Care of Magical Creatures":
 				if len(value) == 0:
 					mat[i, k] = data.getCol(key)["mean"]
 				else:
@@ -43,12 +42,10 @@ def sigmoid(x):
 error_lists = []
 
 def gradient_descent(M: np.ndarray, learningRate, max_iter):
-  error_lists.append([])
+	error_lists.append([])
 	y = M[:, 0].astype(dtype=int)
 	X = np.delete(M, 0, axis=1)
-	minX = X.min(axis=0)
 	maxX = np.max(np.absolute(X), axis=0)
-	# X = (X - minX) / (maxX - minX)
 	X = X / maxX
 
 	bias = np.ones(X.shape[0])
@@ -72,8 +69,8 @@ def gradient_descent(M: np.ndarray, learningRate, max_iter):
 
 	last = weights[-1]
 	weights = weights[:-1]
-	denormalised_weights = weights * (1.0 / maxX)
-	return np.append(denormalised_weights, last)
+	denormalized_weights = weights * (1.0 / maxX)
+	return np.append(denormalized_weights, last)
 
 
 def save_weights(save):
@@ -108,13 +105,12 @@ if argv[1] != "dataset_train.csv" and not argv[1].endswith("/dataset_train.csv")
 
 dirCreate()
 
-# data = get_data(argv[1])
 data = Data(argv[1])
-houses = []
-houses.append({'name': 'Gryffindor', 'matrix': make_matrix(data, "Gryffindor")})
-houses.append({'name': 'Ravenclaw', 'matrix': make_matrix(data, "Ravenclaw")})
-houses.append({'name': 'Slytherin', 'matrix': make_matrix(data, "Slytherin")})
-houses.append({'name': 'Hufflepuff', 'matrix': make_matrix(data, "Hufflepuff")})
+
+houses = [{'name': 'Gryffindor', 'matrix': make_matrix(data, "Gryffindor")},
+          {'name': 'Ravenclaw', 'matrix': make_matrix(data, "Ravenclaw")},
+          {'name': 'Slytherin', 'matrix': make_matrix(data, "Slytherin")},
+          {'name': 'Hufflepuff', 'matrix': make_matrix(data, "Hufflepuff")}]
 
 save = ""
 fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(15, 15))
@@ -126,9 +122,10 @@ for i, house in enumerate(houses):
 	# visualization of gradient descent
 	x = i % 2
 	y = i // 2
-	axs[x, y].set(ylabel="Error")
+	axs[x, y].set(ylabel="Error", xlabel="Iterations")
 	axs[x, y].set_title(house["name"], fontsize=20, pad=15)
-	axs[x, y].yaxis.label.set_size(20)
+	axs[x, y].yaxis.label.set_size(15)
+	axs[x, y].xaxis.label.set_size(15)
 	axs[x, y].plot(error_lists[i])
 
 save_weights(save)
