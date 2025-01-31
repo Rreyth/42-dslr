@@ -1,20 +1,21 @@
 from sys import stderr, argv
 from classes.Data import Data
-from classes.Matrix import Matrix
 from functions.describe_fcts import to_dict
-from functions.myMath import list_exp, list_abs
+from functions.myMath import list_abs
 
 import numpy as np
+from itertools import islice
+
+NUMERICAL_VALUES_START = 6
+NB_USELESS_COLUMNS = 2
 
 def make_matrix(data : Data, name : str) -> np.ndarray :
-	mat = np.ndarray((len(data.content), len(data.content[0]) - 6 - 2 + 1), dtype=float)
-	student_count = 0
+	mat = np.ndarray((len(data.content), len(data.content[0]) - NUMERICAL_VALUES_START - NB_USELESS_COLUMNS + 1), dtype=float)
 	for i, stud in enumerate(data.content):
 		mat[i, 0] = 1 if stud["Hogwarts House"] == name else 0
-		student_count = student_count + 1
 		k = 1
-		for j, (key, value) in enumerate(stud.items()):
-			if (j > 6 and j != 16):
+		for key, value in islice(stud.items(), NUMERICAL_VALUES_START, None):
+			if (key != "Arithmancy" and key != "Care of Magical Creatures"):
 				if len(value) == 0:
 					mat[i, k] = data.getCol(key)["mean"]
 				else:
