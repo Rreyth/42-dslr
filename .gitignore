@@ -1,5 +1,7 @@
 __pycache__
 .idea
+.vscode
 weights
 Visualization
 venv
+dataset_train.csv

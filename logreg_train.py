@@ -1,10 +1,11 @@
 from sys import stderr, argv
 from os import path, makedirs
 from classes.Data import Data
-from classes.Matrix import Matrix
 from functions.describe_fcts import to_dict
-from functions.myMath import list_exp, list_abs
+from functions.myMath import list_abs
 import matplotlib.pyplot as plt
+import numpy as np
+from itertools import islice
 
 def dirCreate():
 	if path.isdir("Visualization"):
@@ -16,63 +17,52 @@ def dirCreate():
 		exit(1)
 
 
-def make_matrix(data : Data, name : str) -> Matrix :
-	mat = []
-	for i, stud in enumerate(data.content):
-		mat.append([])
-		mat[i].append(1 if stud["Hogwarts House"] == name else 0)
-		for id, value in stud.items():
-			if id == "Index" or id == "Arithmancy" or id == "Care of Magical Creatures":
-				continue
-			try:
-				grade = float(value)
-				if grade != grade or grade == float('inf') or grade == float('-inf'):
-					continue
-				mat[i].append(grade)
-			except Exception:
-				if len(value) == 0:
-					mat[i].append(data.getCol(id)["mean"])
+NUMERICAL_VALUES_START = 6
+NB_USELESS_COLUMNS = 2
 
-	return Matrix(mat)
+def make_matrix(data : Data, name : str) -> np.ndarray :
+	mat = np.ndarray((len(data.content), len(data.content[0]) - NUMERICAL_VALUES_START - NB_USELESS_COLUMNS + 1), dtype=float)
+	for i, stud in enumerate(data.content):
+		mat[i, 0] = 1 if stud["Hogwarts House"] == name else 0
+		k = 1
+		for key, value in islice(stud.items(), NUMERICAL_VALUES_START, None):
+			if (key != "Arithmancy" and key != "Care of Magical Creatures"):
+				if len(value) == 0:
+					mat[i, k] = data.getCol(key)["mean"]
+				else:
+					mat[i, k] = float(value)
+				k = k + 1
+
+	return mat
 
 
 def sigmoid(x):
-	scaled_x = [elem * -1 for elem in x]
-	expo = list_exp(scaled_x)
-	res = []
-	for i in range(len(expo)):
-		res.append(1 / (1 + expo[i]))
-
-	return res
-
-
-def denormalize_weights(weights, maxes):
-	res = []
-	for i in range(len(weights) - 1):
-		res.append(weights[i] * (1 / maxes[i]))
-	return res
+	return 1 / (1 + np.exp(-x))
 
 
 error_lists = []
 
+def gradient_descent(M: np.ndarray, learningRate, max_iter):
+  error_lists.append([])
+	y = M[:, 0].astype(dtype=int)
+	X = np.delete(M, 0, axis=1)
+	minX = X.min(axis=0)
+	maxX = np.max(np.absolute(X), axis=0)
+	# X = (X - minX) / (maxX - minX)
+	X = X / maxX
 
-def gradient_descent(M : Matrix, learningRate, max_iter):
-	error_lists.append([])
+	bias = np.ones(X.shape[0])
+	X = np.column_stack((X, bias))
 
-	y = M.colToLine(0)
-	X = M.subMatrix(-1, 0)
-	X.normMatrix()
-
-	bias = [1 for i in range(X.size()[0])]
-	X.addCol(bias)
-
-	weights = [0.0 for i in range(X.size()[1])]
+	weights = np.zeros(X.shape[1])
 	for i in range(max_iter):
-		pred = sigmoid(X.dot(weights))
-		sub = [pred[j] - y[j] for j in range(len(y))]
-		gradient = X.transpose().dot(sub)
-		gradient = [value / len(y) for value in gradient]
-		weights = [weights[j] - (learningRate * gradient[j]) for j in range(len(weights))]
+		dot_product = np.dot(X, weights)
+		pred = sigmoid(dot_product)
+		sub = pred - y
+		gradient = np.dot(X.T, sub)
+		gradient = gradient / len(y)
+		gradient *= learningRate
+		weights -= gradient
 
 		error = sum(list_abs(gradient))
 		error_lists[-1].append(error)
@@ -80,9 +70,11 @@ def gradient_descent(M : Matrix, learningRate, max_iter):
 		if error < 1e-6: #convergence
 			break
 
-	denormalized_weights = denormalize_weights(weights, X.maxes)
-	denormalized_weights.append(weights.pop())
-	return denormalized_weights
+	last = weights[-1]
+	weights = weights[:-1]
+	denormalised_weights = weights * (1.0 / maxX)
+	return np.append(denormalised_weights, last)
+
 
 def save_weights(save):
 	file = False
@@ -129,6 +121,7 @@ fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(15, 15))
 for i, house in enumerate(houses):
 	weights = gradient_descent(house["matrix"], 0.1, 1000)
 	save += f"{house['name']}\n{format_weights(weights)}\n"
+	print(f"{house['name']}: 100%")
 
 	# visualization of gradient descent
 	x = i % 2
