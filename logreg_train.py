@@ -5,6 +5,7 @@ from functions.myMath import list_abs
 import matplotlib.pyplot as plt
 import numpy as np
 from itertools import islice
+import argparse
 
 def dirCreate():
 	if path.isdir("Visualization"):
@@ -160,42 +161,59 @@ def format_weights(weights):
 		res += "," if i != (len(weights) - 1) else ""
 	return res
 
-if len(argv) != 2:
-	print("Error: wrong number of arguments", file=stderr)
-	print("Usage: python logreg_train.py dataset_train.csv")
-	exit(1)
+from enum import Enum
 
-if argv[1] != "dataset_train.csv" and not argv[1].endswith("/dataset_train.csv"):
-	print("Error: argument must be dataset_train.csv", file=stderr)
-	print("Usage: python logreg_train.py */dataset_train.csv")
-	exit(1)
+class GradientTypes(Enum):
+	BATCH = 1
+	STOCHASTIC = 2
+	MINI_BATCH = 3
 
-dirCreate()
+if __name__ == "__main__":
 
-data = Data(argv[1])
+	parser = argparse.ArgumentParser()
+	parser.add_argument("dataset", choices=["dataset_train.csv"], help="path to the dataset file")
+	parser.add_argument("-gd", "--gradient_descent", choices=["batch", "stochastic", "minibatch"], help="gradient descent type")
 
-houses = [{'name': 'Gryffindor', 'matrix': make_matrix(data, "Gryffindor")},
-          {'name': 'Ravenclaw', 'matrix': make_matrix(data, "Ravenclaw")},
-          {'name': 'Slytherin', 'matrix': make_matrix(data, "Slytherin")},
-          {'name': 'Hufflepuff', 'matrix': make_matrix(data, "Hufflepuff")}]
+	args = parser.parse_args()
+	# if len(argv) != 2:
+	# 	print("Error: wrong number of arguments", file=stderr)
+	# 	print("Usage: python logreg_train.py dataset_train.csv")
+	# 	exit(1)
 
-save = ""
-fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(15, 15))
-for i, house in enumerate(houses):
-	weights = gradient_descent(house["matrix"], 0.01, 1000)
-	# weights = stochastic_gradient_descent(house["matrix"], 0.01, 1000)
-	# weights = mini_batch_gradient_descent(house["matrix"], 0.01, 1000, 16)
-	save += f"{house['name']}\n{format_weights(weights)}\n"
-	print(f"{house['name']}: 100%")
+	# if argv[1] != "dataset_train.csv" and not argv[1].endswith("/dataset_train.csv"):
+	# 	print("Error: argument must be dataset_train.csv", file=stderr)
+	# 	print("Usage: python logreg_train.py */dataset_train.csv")
+	# 	exit(1)
 
-	# visualization of gradient descent
-	x = i % 2
-	y = i // 2
-	axs[x, y].set(ylabel="Error", xlabel="Iterations")
-	axs[x, y].set_title(house["name"], fontsize=20, pad=15)
-	axs[x, y].yaxis.label.set_size(15)
-	axs[x, y].xaxis.label.set_size(15)
-	axs[x, y].plot(error_lists[i])
+	dirCreate()
 
-save_weights(save)
-fig.savefig("Visualization/gradient_descent.png")
+	data = Data(argv[1])
+
+	houses = [{'name': 'Gryffindor', 'matrix': make_matrix(data, "Gryffindor")},
+			{'name': 'Ravenclaw', 'matrix': make_matrix(data, "Ravenclaw")},
+			{'name': 'Slytherin', 'matrix': make_matrix(data, "Slytherin")},
+			{'name': 'Hufflepuff', 'matrix': make_matrix(data, "Hufflepuff")}]
+
+	save = ""
+	fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(15, 15))
+	for i, house in enumerate(houses):
+		if args.gradient_descent == "stochastic":
+			weights = stochastic_gradient_descent(house["matrix"], 0.01, 1000)
+		elif args.gradient_descent == "minibatch":
+			weights = mini_batch_gradient_descent(house["matrix"], 0.01, 1000, 16)
+		else:
+			weights = gradient_descent(house["matrix"], 0.01, 1000)
+		save += f"{house['name']}\n{format_weights(weights)}\n"
+		print(f"{house['name']}: 100%")
+
+		# visualization of gradient descent
+		x = i % 2
+		y = i // 2
+		axs[x, y].set(ylabel="Error", xlabel="Iterations")
+		axs[x, y].set_title(house["name"], fontsize=20, pad=15)
+		axs[x, y].yaxis.label.set_size(15)
+		axs[x, y].xaxis.label.set_size(15)
+		axs[x, y].plot(error_lists[i])
+
+	save_weights(save)
+	fig.savefig("Visualization/gradient_descent.png")
