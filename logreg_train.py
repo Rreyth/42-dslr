@@ -161,29 +161,19 @@ def format_weights(weights):
 		res += "," if i != (len(weights) - 1) else ""
 	return res
 
-from enum import Enum
-
-class GradientTypes(Enum):
-	BATCH = 1
-	STOCHASTIC = 2
-	MINI_BATCH = 3
+class IsCSVFile(argparse.Action):
+	def __call__(self, parser, namespace, values, option_string=None):
+		if not values.endswith(".csv"):
+			raise argparse.ArgumentError(self, f"'{values}' is not a csv file.")
+		setattr(namespace, self.dest, values)
 
 if __name__ == "__main__":
 
 	parser = argparse.ArgumentParser()
-	parser.add_argument("dataset", choices=["dataset_train.csv"], help="path to the dataset file")
+	parser.add_argument("dataset", action=IsCSVFile, help="path to the dataset file")
 	parser.add_argument("-gd", "--gradient_descent", choices=["batch", "stochastic", "minibatch"], help="gradient descent type")
 
 	args = parser.parse_args()
-	# if len(argv) != 2:
-	# 	print("Error: wrong number of arguments", file=stderr)
-	# 	print("Usage: python logreg_train.py dataset_train.csv")
-	# 	exit(1)
-
-	# if argv[1] != "dataset_train.csv" and not argv[1].endswith("/dataset_train.csv"):
-	# 	print("Error: argument must be dataset_train.csv", file=stderr)
-	# 	print("Usage: python logreg_train.py */dataset_train.csv")
-	# 	exit(1)
 
 	dirCreate()
 
