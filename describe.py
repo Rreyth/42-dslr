@@ -1,19 +1,15 @@
-from sys import argv, stderr
+import argparse
 from classes.Data import Data
+from functions.file_utils import IsCSVFile
 
 
 def main():
-	if len(argv) != 2:
-		print("Error: wrong number of arguments", file=stderr)
-		print("Usage: python describe.py <dataset>.csv")
-		exit(1)
+	parser = argparse.ArgumentParser()
+	parser.add_argument("dataset", action=IsCSVFile, help="path to the dataset file")
 
-	if not argv[1].endswith(".csv"):
-		print("Error: argument must be a csv file", file=stderr)
-		print("Usage: python describe.py <dataset>.csv")
-		exit(1)
+	args = parser.parse_args()
 
-	data = Data(argv[1])
+	data = Data(args.dataset)
 	data.describe()
 
 

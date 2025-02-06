@@ -39,7 +39,7 @@ class Data:
 				else:
 					self.allHouses[names[j]].append(np.nan)
 
-		self.columnCalc()
+		self.column_calc()
 
 	def __str__(self) -> str:
 		res = ""
@@ -49,25 +49,24 @@ class Data:
 			res += "-----------------------------------\n"
 		return res
 
-	def getCol(self, name):
+	def get_col(self, name):
 		idx = self.name_list.index(name)
-		res = {}
-		res["count"] = self.count_list[idx]
-		res["mean"] = self.mean_list[idx]
-		res["std"] = self.std_list[idx]
-		res["min"] = self.min_list[idx]
-		res["25"] = self.quarter_list[idx]
-		res["50"] = self.mid_list[idx]
-		res["75"] = self.three_quarter_list[idx]
-		res["max"] = self.max_list[idx]
-		res["iqr"] = self.iqr_list[idx]
-		res["range"] = self.range_list[idx]
-		res["skew"] = self.skew_list[idx]
-		res["kurt"] = self.kurt_list[idx]
-		res["var"] = self.var_list[idx]
+		res = {"count": self.count_list[idx],
+		       "mean": self.mean_list[idx],
+		       "std": self.std_list[idx],
+		       "min": self.min_list[idx],
+		       "25": self.quarter_list[idx],
+		       "50": self.mid_list[idx],
+		       "75": self.three_quarter_list[idx],
+		       "max": self.max_list[idx],
+		       "iqr": self.iqr_list[idx],
+		       "range": self.range_list[idx],
+		       "skew": self.skew_list[idx],
+		       "kurt": self.kurt_list[idx],
+		       "var": self.var_list[idx]}
 		return res
 
-	def columnCalc(self):
+	def column_calc(self):
 		for key, values in self.allHouses.items():
 			self.count_list.append(len([x for x in values if not np.isnan(x)]))
 			self.name_list.append(key)

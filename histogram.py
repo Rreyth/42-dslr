@@ -1,18 +1,7 @@
 import matplotlib.pyplot as plt
-from os import path, makedirs
-from sys import stderr
-from functions.describe_fcts import ft_mean, ft_std
 from classes.Data import Data
-
-
-def dirCreate():
-	if path.isdir("Visualization"):
-		return
-	try:
-		makedirs("Visualization")
-	except Exception as e:
-		print(f"Error: {e}", file=stderr)
-		exit(1)
+from functions.file_utils import dir_create
+from functions.describe_fcts import ft_mean, ft_std
 
 
 def most_homogeneous_course_histogram(data: Data, houses, most_homogeneous_course):
@@ -66,7 +55,7 @@ def all_courses_histogram(data: Data, courses, houses):
 def courses_std_dev_bar_plot(courses_std_dev: dict):
 	fig, axs = plt.subplots(figsize=(15,5))
 
-	courses_std_dev = dict(sorted(courses_std_dev.items(), key=lambda x: x[1]))
+	courses_std_dev = dict(sorted(courses_std_dev.items(), key=lambda f: x[1]))
 
 	axs.bar(courses_std_dev.keys(), courses_std_dev.values())
 	fig.tight_layout(pad=4.0)
@@ -100,7 +89,7 @@ def main():
 		courses_std_dev[course] = ft_std(courses_mean)
 		courses_mean.clear()
 
-	dirCreate()
+	dir_create("Visualization")
 
 	most_homogeneous_course = min(courses_std_dev, key=courses_std_dev.get)
 	most_homogeneous_course_histogram(data, houses, most_homogeneous_course)

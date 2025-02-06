@@ -1,21 +1,10 @@
-from os import path, makedirs
-from sys import stderr
 import matplotlib.pyplot as plt
 from classes.Data import Data
-
-
-def dirCreate():
-	if path.isdir("Visualization"):
-		return
-	try:
-		makedirs("Visualization")
-	except Exception as e:
-		print(f"Error: {e}", file=stderr)
-		exit(1)
+from functions.file_utils import dir_create
 
 
 def main():
-	dirCreate()
+	dir_create("Visualization")
 	data = Data("datasets/dataset_train.csv")
 
 	fig, axs = plt.subplots()

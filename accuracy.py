@@ -2,7 +2,7 @@ from sys import stderr
 from sklearn.metrics import accuracy_score
 
 
-def openHouseFile(name):
+def open_house_file(name):
 	try:
 		file = open(name)
 	except Exception as e:
@@ -17,8 +17,8 @@ def openHouseFile(name):
 
 
 def main():
-	pred = openHouseFile('houses.csv')
-	real = openHouseFile('real_houses.csv')
+	pred = open_house_file('houses.csv')
+	real = open_house_file('real_houses.csv')
 
 	print(accuracy_score(real, pred))
 
