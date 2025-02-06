@@ -6,3 +6,4 @@ Visualization
 venv
 dataset_train.csv
 dataset_test.csv
+*.csv
