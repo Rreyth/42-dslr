@@ -1,19 +1,7 @@
 from sys import argv, stderr
 from classes.Data import Data
-
 import numpy as np
 from itertools import islice
-
-if len(argv) != 3:
-	print("Error: wrong number of arguments", file=stderr)
-	print("Usage: python logreg_predict.py */dataset_test.csv weights")
-	exit(1)
-
-if (argv[1] != "dataset_test.csv" and not argv[1].endswith("/dataset_test.csv"))\
-		or (argv[2] != "weights" and not argv[2].endswith("/weights")):
-	print("Error: arguments must be dataset_test.csv and weights", file=stderr)
-	print("Usage: python logreg_predict.py */dataset_test.csv weights")
-	exit(1)
 
 
 NUMERICAL_VALUES_START = 6
@@ -85,20 +73,35 @@ def save_houses(houses):
 	file.write(save)
 
 
-houses = make_houses(argv[2])
-data = Data(argv[1])
-matrix = make_matrix(data)
+def main():
+	if len(argv) != 3:
+		print("Error: wrong number of arguments", file=stderr)
+		print("Usage: python logreg_predict.py */dataset_test.csv weights")
+		exit(1)
 
-predict = []
-for house in houses:
-	weights = [float(w) for w in house['weights']]
+	if (argv[1] != "dataset_test.csv" and not argv[1].endswith("/dataset_test.csv")) \
+			or (argv[2] != "weights" and not argv[2].endswith("/weights")):
+		print("Error: arguments must be dataset_test.csv and weights", file=stderr)
+		print("Usage: python logreg_predict.py */dataset_test.csv weights")
+		exit(1)
 
-	b = weights.pop()
+	houses = make_houses(argv[2])
+	data = Data(argv[1])
+	matrix = make_matrix(data)
 
-	odds = np.dot(matrix, weights) + b
-	predict.append({'name' : house['name'], 'likelihood' : sigmoid(odds)})
+	predict = []
+	for house in houses:
+		weights = [float(w) for w in house['weights']]
+
+		b = weights.pop()
+
+		odds = np.dot(matrix, weights) + b
+		predict.append({'name': house['name'], 'likelihood': sigmoid(odds)})
+
+	final_prediction = choose_house(predict, matrix.shape[0])
+
+	save_houses(final_prediction)
 
 
-final_prediction = choose_house(predict, matrix.shape[0])
-
-save_houses(final_prediction)
+if __name__ == "__main__":
+	main()

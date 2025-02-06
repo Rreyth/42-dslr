@@ -3,6 +3,7 @@ from sys import stderr
 import matplotlib.pyplot as plt
 from classes.Data import Data
 
+
 def dirCreate():
 	if path.isdir("Visualization"):
 		return
@@ -13,7 +14,7 @@ def dirCreate():
 		exit(1)
 
 
-if __name__ == "__main__":
+def main():
 	dirCreate()
 	data = Data("datasets/dataset_train.csv")
 
@@ -27,3 +28,7 @@ if __name__ == "__main__":
 	axs.scatter(x_data, y_data)
 
 	fig.savefig("Visualization/scatter_plot.png")
+
+
+if __name__ == "__main__":
+	main()

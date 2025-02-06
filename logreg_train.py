@@ -7,6 +7,7 @@ import numpy as np
 from itertools import islice
 import argparse
 
+
 def dirCreate():
 	if path.isdir("Visualization"):
 		return
@@ -19,6 +20,7 @@ def dirCreate():
 
 NUMERICAL_VALUES_START = 6
 NB_USELESS_COLUMNS = 2
+
 
 def make_matrix(data : Data, name : str) -> np.ndarray :
 	mat = np.ndarray((len(data.studs), len(data.studs[0]) - NUMERICAL_VALUES_START - NB_USELESS_COLUMNS + 1), dtype=float)
@@ -167,8 +169,8 @@ class IsCSVFile(argparse.Action):
 			raise argparse.ArgumentError(self, f"'{values}' is not a csv file.")
 		setattr(namespace, self.dest, values)
 
-if __name__ == "__main__":
 
+def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("dataset", action=IsCSVFile, help="path to the dataset file")
 	parser.add_argument("-gd", "--gradient_descent", choices=["batch", "stochastic", "minibatch"], help="gradient descent type")
@@ -207,3 +209,7 @@ if __name__ == "__main__":
 
 	save_weights(save)
 	fig.savefig("Visualization/gradient_descent.png")
+
+
+if __name__ == "__main__":
+	main()

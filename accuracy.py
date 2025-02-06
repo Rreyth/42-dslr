@@ -1,6 +1,7 @@
 from sys import stderr
 from sklearn.metrics import accuracy_score
 
+
 def openHouseFile(name):
 	try:
 		file = open(name)
@@ -15,7 +16,12 @@ def openHouseFile(name):
 	return houses
 
 
-pred = openHouseFile('houses.csv')
-real = openHouseFile('real_houses.csv')
+def main():
+	pred = openHouseFile('houses.csv')
+	real = openHouseFile('real_houses.csv')
 
-print(accuracy_score(real, pred))
+	print(accuracy_score(real, pred))
+
+
+if __name__ == "__main__":
+	main()

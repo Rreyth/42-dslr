@@ -3,6 +3,7 @@ from sys import stderr
 import matplotlib.pyplot as plt
 from classes.Data import Data
 
+
 def dirCreate():
 	if path.isdir("Visualization"):
 		return
@@ -12,7 +13,8 @@ def dirCreate():
 		print(f"Error: {e}", file=stderr)
 		exit(1)
 
-if __name__ == "__main__":
+
+def main():
 	dirCreate()
 	data = Data("datasets/dataset_train.csv")
 
@@ -21,17 +23,14 @@ if __name__ == "__main__":
 
 	courses_count = len(courses)
 
-	fig, axs = plt.subplots(nrows=courses_count, ncols=courses_count, figsize=(40,40))
+	fig, axs = plt.subplots(nrows=courses_count, ncols=courses_count, figsize=(40, 40))
 
 	for y, course_y in enumerate(courses):
 		title = course_y
-		title_y = 0.4
 		if course_y == 'Defense Against the Dark Arts':
 			title = 'Defense Against\nthe Dark Arts'
-			title_y = 0.35
 		elif course_y == 'Care of Magical Creatures':
 			title = 'Care of\nMagical Creatures'
-			title_y = 0.35
 		axs[y, 0].set(ylabel=title)
 		axs[0, y].set(xlabel=title)
 		axs[0, y].xaxis.set_label_position('top')
@@ -51,3 +50,7 @@ if __name__ == "__main__":
 					axs[y, x].label_outer(remove_inner_ticks=True)
 
 	fig.savefig("Visualization/pair_plot.png")
+
+
+if __name__ == "__main__":
+	main()

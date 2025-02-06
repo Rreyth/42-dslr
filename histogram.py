@@ -4,6 +4,7 @@ from sys import stderr
 from functions.describe_fcts import ft_mean, ft_std
 from classes.Data import Data
 
+
 def dirCreate():
 	if path.isdir("Visualization"):
 		return
@@ -14,7 +15,7 @@ def dirCreate():
 		exit(1)
 
 
-def most_homogeneous_course_histogram(data: Data, most_homogeneous_course):
+def most_homogeneous_course_histogram(data: Data, houses, most_homogeneous_course):
 	fig, axs = plt.subplots()
 
 	colors = {'Gryffindor' : '#ff0000',
@@ -79,7 +80,7 @@ def courses_std_dev_bar_plot(courses_std_dev: dict):
 	fig.savefig("Visualization/bar_plot.png")
 
 
-if __name__ == "__main__":
+def main():
 	data = Data("datasets/dataset_train.csv")
 
 	courses = data.houses["Gryffindor"].keys()
@@ -102,6 +103,10 @@ if __name__ == "__main__":
 	dirCreate()
 
 	most_homogeneous_course = min(courses_std_dev, key=courses_std_dev.get)
-	most_homogeneous_course_histogram(data, most_homogeneous_course)
+	most_homogeneous_course_histogram(data, houses, most_homogeneous_course)
 	all_courses_histogram(data, courses, houses)
 	courses_std_dev_bar_plot(courses_std_dev)
+
+
+if __name__ == "__main__":
+	main()
