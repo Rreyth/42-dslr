@@ -16,6 +16,11 @@ class Data:
 		self.mid_list = []
 		self.three_quarter_list = []
 		self.max_list = []
+		self.iqr_list = []
+		self.range_list = []
+		self.skew_list = []
+		self.kurt_list = []
+		self.var_list = []
 
 		try:
 			file = open(filepath)
@@ -38,7 +43,7 @@ class Data:
 
 	def __str__(self) -> str:
 		res = ""
-		for stud in self.allHouses:
+		for stud in self.studs:
 			for name, value in stud.items():
 				res += name + ": " + value + "\n"
 			res += "-----------------------------------\n"
@@ -55,6 +60,11 @@ class Data:
 		res["50"] = self.mid_list[idx]
 		res["75"] = self.three_quarter_list[idx]
 		res["max"] = self.max_list[idx]
+		res["iqr"] = self.iqr_list[idx]
+		res["range"] = self.range_list[idx]
+		res["skew"] = self.skew_list[idx]
+		res["kurt"] = self.kurt_list[idx]
+		res["var"] = self.var_list[idx]
 		return res
 
 	def columnCalc(self):
@@ -68,6 +78,11 @@ class Data:
 			self.mid_list.append(ft_percentile(values, 50))
 			self.three_quarter_list.append(ft_percentile(values, 75))
 			self.max_list.append(ft_max(values))
+			self.iqr_list.append(ft_iqr(values))
+			self.range_list.append(ft_max(values) - ft_min(values))
+			self.skew_list.append(ft_skewness(values))
+			self.kurt_list.append(ft_kurtosis(values))
+			self.var_list.append(ft_variance(values))
 
 	def describe(self):
 		text = "\t" + _format_names(self.name_list)
@@ -79,6 +94,11 @@ class Data:
 		text += "\n50%\t" + _format_values(self.mid_list)
 		text += "\n75%\t" + _format_values(self.three_quarter_list)
 		text += "\nMax\t" + _format_values(self.max_list)
+		text += "\nIQR\t" + _format_values(self.iqr_list)
+		text += "\nRange\t" + _format_values(self.range_list)
+		text += "\nSkew\t" + _format_values(self.skew_list)
+		text += "\nKurt\t" + _format_values(self.kurt_list)
+		text += "\nVar\t" + _format_values(self.var_list)
 		print(text)
 
 
@@ -94,7 +114,7 @@ def _format_names(names : list):
 def _format_values(values : list):
 	res = ""
 	for i, value in enumerate(values):
-		formated_value = f"{value:.6f}" if isinstance(value, float) else f"{value}"
+		formated_value = f"{value:.2f}" if isinstance(value, float) else f"{value}"
 		dot_pos = formated_value.find(".")
 		if dot_pos != -1:
 			while formated_value[len(formated_value) - 1] == "0" and formated_value[len(formated_value) - 2] != '.':
