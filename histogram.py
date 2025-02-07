@@ -55,7 +55,7 @@ def all_courses_histogram(data: Data, courses, houses):
 def courses_std_dev_bar_plot(courses_std_dev: dict):
 	fig, axs = plt.subplots(figsize=(15,5))
 
-	courses_std_dev = dict(sorted(courses_std_dev.items(), key=lambda f: x[1]))
+	courses_std_dev = dict(sorted(courses_std_dev.items(), key=lambda item: item[1]))
 
 	axs.bar(courses_std_dev.keys(), courses_std_dev.values())
 	fig.tight_layout(pad=4.0)

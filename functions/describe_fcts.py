@@ -25,7 +25,12 @@ def ft_percentile(values : list, percentile):
 	cpy = [x for x in values if not np.isnan(x)]
 	cpy.sort()
 	n = len(cpy)
-	idx = round(percentile * (n + 1) / 100) - 1
+	idx = (percentile / 100) * (n - 1)
+	if idx % 1 != 0 and idx < n - 1:
+		weight = idx - int(idx)
+		idx = int(idx)
+		return cpy[idx] * (1 - weight) + cpy[idx + 1] * weight
+	idx = int(idx)
 	return cpy[idx]
 
 def ft_max(values : list) -> float:
