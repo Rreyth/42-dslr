@@ -16,7 +16,7 @@ def init_GD(M: np.ndarray):
 	bias = np.ones(X.shape[0])
 	X = np.column_stack((X, bias))
 
-	return X, max_x, y, bias
+	return X, max_x, y
 
 
 def denormalize_weights(weights, max_x):
@@ -38,11 +38,9 @@ def compute_gradient(X, weights, y, learning_rate, stochastic : bool):
 	return gradient
 
 
-error_lists = []
-
 def gradient_descent(M: np.ndarray, learning_rate, max_iter):
-	error_lists.append([])
-	X, max_x, y, bias = init_GD(M)
+	errors = []
+	X, max_x, y = init_GD(M)
 	weights = np.zeros(X.shape[1])
 
 	for i in range(max_iter):
@@ -50,17 +48,17 @@ def gradient_descent(M: np.ndarray, learning_rate, max_iter):
 		weights -= gradient
 
 		error = sum(list_abs(gradient))
-		error_lists[-1].append(error)
+		errors.append(error)
 
 		if error < 1e-6: #convergence
 			break
 
-	return denormalize_weights(weights, max_x)
+	return denormalize_weights(weights, max_x), errors
 
 
 def stochastic_gradient_descent(M: np.ndarray, learning_rate, max_iter):
-	error_lists.append([])
-	X, max_x, y, bias = init_GD(M)
+	errors = []
+	X, max_x, y = init_GD(M)
 
 	weights = np.zeros(X.shape[1])
 	for i in range(max_iter):
@@ -72,12 +70,12 @@ def stochastic_gradient_descent(M: np.ndarray, learning_rate, max_iter):
 		weights -= gradient
 
 		error = sum(list_abs(gradient))
-		error_lists[-1].append(error)
+		errors.append(error)
 
 		if error < 1e-6: #convergence
 			break
 
-	return denormalize_weights(weights, max_x)
+	return denormalize_weights(weights, max_x), errors
 
 
 def mini_batch_gradient_descent(M: np.ndarray, learning_rate, max_iter, batch_size):
@@ -87,8 +85,8 @@ def mini_batch_gradient_descent(M: np.ndarray, learning_rate, max_iter, batch_si
 	elif batch_size > M.shape[0]:
 		batch_size = M.shape[0]
 
-	error_lists.append([])
-	X, max_x, y, bias = init_GD(M)
+	errors = []
+	X, max_x, y = init_GD(M)
 
 	weights = np.zeros(X.shape[1])
 	for i in range(max_iter):
@@ -100,12 +98,12 @@ def mini_batch_gradient_descent(M: np.ndarray, learning_rate, max_iter, batch_si
 		weights -= gradient
 
 		error = sum(list_abs(gradient))
-		error_lists[-1].append(error)
+		errors.append(error)
 
 		if error < 1e-6: #convergence
 			break
 
-	return denormalize_weights(weights, max_x)
+	return denormalize_weights(weights, max_x), errors
 
 
 def format_weights(weights):
@@ -136,11 +134,11 @@ def main():
 	fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(15, 15))
 	for i, house in enumerate(houses):
 		if args.gradient_descent == "stochastic":
-			weights = stochastic_gradient_descent(house["matrix"], 0.01, 1000)
+			weights, errors = stochastic_gradient_descent(house["matrix"], 0.01, 1000)
 		elif args.gradient_descent == "minibatch":
-			weights = mini_batch_gradient_descent(house["matrix"], 0.01, 1000, 16)
+			weights, errors = mini_batch_gradient_descent(house["matrix"], 0.01, 1000, 16)
 		else:
-			weights = gradient_descent(house["matrix"], 0.01, 1000)
+			weights, errors = gradient_descent(house["matrix"], 0.01, 1000)
 		save += f"{house['name']}\n{format_weights(weights)}\n"
 		print(f"{house['name']}: 100%")
 
@@ -151,7 +149,7 @@ def main():
 		axs[x, y].set_title(house["name"], fontsize=20, pad=15)
 		axs[x, y].yaxis.label.set_size(15)
 		axs[x, y].xaxis.label.set_size(15)
-		axs[x, y].plot(error_lists[i])
+		axs[x, y].plot(errors)
 
 	save_weights(save)
 	fig.savefig("Visualization/gradient_descent.png")
